@@ -7,7 +7,7 @@ import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-public class MainTest {
+public class MainTester {
 
     private static SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
 

@@ -2,7 +2,7 @@ package com.payline.payment.sharegroop.utils.http;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.payline.payment.natixis.exception.InvalidDataException;
+import com.payline.payment.sharegroop.bean.TemplateRequest;
 import com.payline.payment.sharegroop.bean.payment.Orders;
 import com.payline.payment.sharegroop.utils.Constants;
 import com.payline.payment.sharegroop.utils.properties.ConfigProperties;
@@ -32,7 +32,7 @@ public class SharegroopHttpClient {
 
     private static final Logger LOGGER = LogManager.getLogger(SharegroopHttpClient.class);
     private ConfigProperties config = ConfigProperties.getInstance();
-
+    private static final String DEFAULT_CHARSET = "UTF-8";
     private static final String CONTENT_TYPE_KEY = "Content-Type";
     private static final String AUTHENTICATION_KEY = "Authorization";
     private static final String CONTENT_TYPE = "application/json";
@@ -89,7 +89,7 @@ public class SharegroopHttpClient {
     /**------------------------------------------------------------------------------------------------------------------*/
     private Header[] createHeaders(String authentication) {
         Header[] headers = new Header[2];
-      //  headers[0] = new BasicHeader(CONTENT_TYPE_KEY, CONTENT_TYPE);
+        headers[0] = new BasicHeader(CONTENT_TYPE_KEY, CONTENT_TYPE);
         headers[0] = new BasicHeader(AUTHENTICATION_KEY, authentication);
         return headers;
     }
@@ -131,14 +131,14 @@ public class SharegroopHttpClient {
         return client.execute(httpPostRequest);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
-    public Map<String, String> verifyConection() throws IOException, URISyntaxException {
+    public Orders verifyConection() throws IOException, URISyntaxException {
 
         String host = getHost();
-        Orders orders = new Orders();
+
 
         String path =  createPath(Constants.PartnerConfigurationKeys.PATH_VERSION, Constants.PartnerConfigurationKeys.PATH_ORDER);
 
-        String jsonBody = parser.toJson(orders);
+        String jsonBody = "";
 
         Header[] headers = createHeaders("sk_test_fb1ec051-4d3a-4f0e-a9dd-40141013e324 ");
 
@@ -146,10 +146,9 @@ public class SharegroopHttpClient {
         HttpResponse response = doPost(Constants.PartnerConfigurationKeys.SCHEME, host, path, headers, jsonBody);
 
         // create object from Template response
-       // String responseString = EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
-       // return parser.fromJson(responseString, TemplatePaymentResponse.class);
+        String responseString = EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
 
-        return null;
+        return parser.fromJson(responseString, Orders.class);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
 

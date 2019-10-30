@@ -1,6 +1,7 @@
 package com.payline.payment.sharegroop.bean.payment;
 
-import com.payline.pmapi.bean.payment.Order;
+import com.google.gson.Gson;
+
 
 public class Orders {
     private Integer amount;
@@ -14,7 +15,7 @@ public class Orders {
     private String trackId;
     private Item[] items;
 
-    public Orders(){
+    public Orders() {
 
     }
 
@@ -96,5 +97,9 @@ public class Orders {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public static Orders fromJson(String json ){
+        return new Gson().fromJson( json, Orders.class );
     }
 }

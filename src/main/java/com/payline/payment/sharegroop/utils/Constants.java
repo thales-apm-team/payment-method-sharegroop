@@ -25,13 +25,17 @@ public class Constants {
      */
     public static class PartnerConfigurationKeys {
 
-        public static final String SHAREGROOP_URL = "https://api.sandbox.sharegroop.com";
+        public static final String SHAREGROOP_URL = "api.sandbox.sharegroop.com";
         public static final String SCHEME = "https";
         public static final String PATH_VERSION = "v1";
         public static final String PATH_ORDER = "orders";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private PartnerConfigurationKeys(){}
+    }
+
+    public static  class HeadersKey{
+        public static final String AUTHORISATIONKEY_KEY = "AUTHORISATION";
     }
 
     /**

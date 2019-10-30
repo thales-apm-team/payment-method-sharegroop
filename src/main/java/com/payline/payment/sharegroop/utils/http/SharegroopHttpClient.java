@@ -90,7 +90,7 @@ public class SharegroopHttpClient {
     private Header[] createHeaders(String authentication) {
         Header[] headers = new Header[2];
         headers[0] = new BasicHeader(CONTENT_TYPE_KEY, CONTENT_TYPE);
-        headers[0] = new BasicHeader(AUTHENTICATION_KEY, authentication);
+        headers[1] = new BasicHeader(AUTHENTICATION_KEY, authentication);
         return headers;
     }
     /**------------------------------------------------------------------------------------------------------------------*/

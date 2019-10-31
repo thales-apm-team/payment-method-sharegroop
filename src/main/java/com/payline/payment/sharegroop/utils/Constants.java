@@ -16,6 +16,7 @@ public class Constants {
         public static final String SECURE_3D = "SECURE_3D";
 
 
+
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private ContractConfigurationKeys(){}
     }
@@ -25,18 +26,14 @@ public class Constants {
      */
     public static class PartnerConfigurationKeys {
 
-        public static final String SHAREGROOP_URL = "api.sandbox.sharegroop.com";
-        public static final String SCHEME = "https";
-        public static final String PATH_VERSION = "v1";
-        public static final String PATH_ORDER = "orders";
+        //TODO : Effacer l'url de sandBox et utiliser l'URL de prod
+        public static final String SHAREGROOP_URL_SANDBOX = "https://api.sandbox.sharegroop.com";
+        public static final String SHAREGROOP_URL = "https://api.sharegroop.com";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private PartnerConfigurationKeys(){}
     }
 
-    public static  class HeadersKey{
-        public static final String AUTHORISATIONKEY_KEY = "AUTHORISATION";
-    }
 
     /**
      * Keys for the entries in RequestContext data.

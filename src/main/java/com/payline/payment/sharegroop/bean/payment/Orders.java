@@ -98,8 +98,4 @@ public class Orders {
     public void setAmount(Integer amount) {
         this.amount = amount;
     }
-
-    public static Orders fromJson(String json ){
-        return new Gson().fromJson( json, Orders.class );
-    }
 }

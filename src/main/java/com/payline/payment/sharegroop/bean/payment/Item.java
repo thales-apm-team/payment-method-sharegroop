@@ -48,9 +48,4 @@ public class Item {
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
-
-
-    public static Item fromJson(String json ){
-        return new Gson().fromJson( json, Item.class );
-    }
 }

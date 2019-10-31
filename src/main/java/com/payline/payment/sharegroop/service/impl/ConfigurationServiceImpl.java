@@ -1,6 +1,9 @@
 package com.payline.payment.sharegroop.service.impl;
 
+import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
+import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.payment.sharegroop.utils.Constants;
+import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.payment.sharegroop.utils.i18n.I18nService;
 import com.payline.payment.sharegroop.utils.properties.ReleaseProperties;
 import com.payline.pmapi.bean.configuration.ReleaseInformation;
@@ -10,6 +13,7 @@ import com.payline.pmapi.bean.configuration.parameter.impl.InputParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.ListBoxParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.PasswordParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
+import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.service.ConfigurationService;
 
 import java.time.LocalDate;
@@ -25,6 +29,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private I18nService i18n = I18nService.getInstance();
     private ReleaseProperties releaseProperties = ReleaseProperties.getInstance();
+    private SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
 
     @Override
     public List<AbstractParameter> getParameters(Locale locale) {
@@ -54,9 +59,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         uX.setLabel( i18n.getMessage("contract.UX.label", locale) );
         uX.setDescription( i18n.getMessage("contract.UX.description", locale) );
         Map<String, String> uXValues = new HashMap<>();
-        // TODO : Modifier les messages pour l'internationnalisation
-        uXValues.put(UX.COLLECT, UX.COLLECT); // Internationnalisation
-        uXValues.put(UX.PICKING, UX.PICKING);// Internationnalisation
+        uXValues.put(UX.COLLECT, UX.COLLECT);
+        uXValues.put(UX.PICKING, UX.PICKING);
         uX.setList( uXValues );
         uX.setRequired( true );
         uX.setValue( UX.COLLECT );
@@ -65,8 +69,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         // SECURE_3D
         CheckboxParameter secure3D = new CheckboxParameter();
         secure3D.setKey(Constants.ContractConfigurationKeys.SECURE_3D);
-        secure3D.setLabel(i18n.getMessage("contract.secure3D.label",locale));
-        secure3D.setDescription(i18n.getMessage("contract.secure3D.description",locale));
+        secure3D.setLabel(i18n.getMessage("contract.SECURE_3D.label",locale));
+        secure3D.setDescription(i18n.getMessage("contract.SECURE_3D.description",locale));
         secure3D.setRequired(true);
         parameters.add(secure3D);
 
@@ -90,7 +94,28 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
 
-        // TODO : vérifier la clé privée (voir verfy connection dans la doc)
+        // If client private key is missing, no need to go further, as it is equired
+        String clientPrivateKey = Constants.ContractConfigurationKeys.PRIVATE_KEY;
+
+        if( errors.containsKey(clientPrivateKey)){
+            return errors;
+        }
+
+        // Check validity of the private key by executing the verify function
+        RequestConfiguration requestConfiguration = RequestConfiguration.build( contractParametersCheckRequest );
+        Map<String, ContractProperty> contractProperties = requestConfiguration.getContractConfiguration().getContractProperties();
+        contractProperties.put( clientPrivateKey, new ContractProperty( accountInfo.get( clientPrivateKey ) ) );
+
+        // Init HTTP client
+        sharegroopHttpClient.init( requestConfiguration.getPartnerConfiguration() );
+        try {
+            // Try to retrieve an access token
+            sharegroopHttpClient.verifyConection(requestConfiguration);
+        }
+        catch( PluginException e ){
+            // If an exception is thrown, it means that the clientprivate key is wrong
+            errors.put( clientPrivateKey, e.getErrorCode() );
+        }
 
         return errors;
     }

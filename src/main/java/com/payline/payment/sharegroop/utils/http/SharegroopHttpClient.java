@@ -1,48 +1,68 @@
 package com.payline.payment.sharegroop.utils.http;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.payline.payment.sharegroop.bean.TemplateRequest;
-import com.payline.payment.sharegroop.bean.payment.Orders;
+import com.google.gson.JsonSyntaxException;
+import com.payline.payment.sharegroop.bean.ShareGroopErrorResponse;
+import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
+import com.payline.payment.sharegroop.exception.InvalidDataException;
+import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.payment.sharegroop.utils.Constants;
+import com.payline.payment.sharegroop.utils.PluginUtils;
 import com.payline.payment.sharegroop.utils.properties.ConfigProperties;
+import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.logger.LogManager;
 import org.apache.http.Header;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.Logger;
-import javax.net.ssl.HttpsURLConnection;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 
 public class SharegroopHttpClient {
 
     private static final Logger LOGGER = LogManager.getLogger(SharegroopHttpClient.class);
     private ConfigProperties config = ConfigProperties.getInstance();
-    private static final String DEFAULT_CHARSET = "UTF-8";
-    private static final String CONTENT_TYPE_KEY = "Content-Type";
-    private static final String AUTHENTICATION_KEY = "Authorization";
-    private static final String CONTENT_TYPE = "application/json";
 
-    // TODO : Implemeter le système de retries ( 3 essais)
+    //Headers
+    private static final String AUTHENTICATION_KEY = "Authorization";
+    private static final String CONTENT_TYPE_KEY = "Content-Type";
+    private static final String CONTENT_TYPE = "application/json";
+    private static final String MISSING_API_URL_ERROR = "Missing API base url in partnerConfiguration";
+
+
+    // Paths
+    public static final String PATH_VERSION = "v1";
+    public static final String PATH_ORDER = "orders";
+
+
+    /**
+     * Holder containing the keystore data (keys or certificates).
+     */
+    private String privateKeyHolder;
+
+
+    /**
+     * The number of time the client must retry to send the request if it doesn't obtain a response.
+     */
+    private int retries;
 
     private HttpClient client;
     private Gson parser;
 
     // --- Singleton Holder pattern + initialization BEGIN
+    private AtomicBoolean initialized = new AtomicBoolean();
     /**------------------------------------------------------------------------------------------------------------------*/
     SharegroopHttpClient(){
 
@@ -56,41 +76,48 @@ public class SharegroopHttpClient {
         return Holder.instance;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
-    public void init(){
+    public void init( PartnerConfiguration partnerConfiguration ){
+        if( this.initialized.compareAndSet(false, true) ){
+            int connectionRequestTimeout;
+            int connectTimeout;
+            int socketTimeout;
+            try {
+                // request config timeouts (in seconds)
+                connectionRequestTimeout = Integer.parseInt(config.get("http.connectionRequestTimeout"));
+                connectTimeout = Integer.parseInt(config.get("http.connectTimeout"));
+                socketTimeout = Integer.parseInt(config.get("http.socketTimeout"));
 
-        // Initialise Json parser
-        this.parser = new GsonBuilder().create();
+                // retries
+                this.retries = Integer.parseInt(config.get("http.retries"));
+            }
+            catch( NumberFormatException e ){
+                throw new PluginException("plugin error: http.* properties must be integers", e);
+            }
 
-        // Set request configuration
-        final RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(2 * 1000)
-                .setConnectionRequestTimeout(3 * 1000)
-                .setSocketTimeout(4 * 1000).build();
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectionRequestTimeout(connectionRequestTimeout * 1000)
+                    .setConnectTimeout(connectTimeout * 1000)
+                    .setSocketTimeout(socketTimeout * 1000)
+                    .build();
 
-        // Create Http client with the request configuration
-        final HttpClientBuilder builder = HttpClientBuilder.create();
-        builder.useSystemProperties()
-                .setDefaultRequestConfig(requestConfig)
-                .setDefaultCredentialsProvider(new BasicCredentialsProvider())
-                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
+            // TODO : Vérifier la pertinence pour le moyen de paiement
 
-        this.client = builder.build();
 
+
+            // instantiate Apache HTTP client
+            //TODO ajouter le sslcontext si cela est pertinant
+            this.client = HttpClientBuilder.create()
+                    .useSystemProperties()
+                    .setDefaultRequestConfig(requestConfig)
+                    .build();
+        }
     }
     // --- Singleton Holder pattern + initialization END
     /**------------------------------------------------------------------------------------------------------------------*/
-    /**
-     * Get the host URL
-     * @return
-     */
-    public String getHost() {
-        return Constants.PartnerConfigurationKeys.SHAREGROOP_URL;
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
     private Header[] createHeaders(String authentication) {
-        Header[] headers = new Header[2];
-        headers[0] = new BasicHeader(CONTENT_TYPE_KEY, CONTENT_TYPE);
-        headers[1] = new BasicHeader(AUTHENTICATION_KEY, authentication);
+        Header[] headers = new Header[1];
+        //headers[0] = new BasicHeader(CONTENT_TYPE_KEY, CONTENT_TYPE);
+        headers[0] = new BasicHeader(AUTHENTICATION_KEY, authentication);
         return headers;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -104,52 +131,125 @@ public class SharegroopHttpClient {
         return sb.toString();
     }
     /**------------------------------------------------------------------------------------------------------------------*/
-    public HttpResponse doGet(String scheme, String host, String path, Header[] headers) throws IOException, URISyntaxException {
+    /**
+     * Send the request, with a retry system in case the client does not obtain a proper response from the server.
+     *
+     * @param httpRequest The request to send.
+     * @return The response converted as a {@link StringResponse}.
+     * @throws PluginException If an error repeatedly occurs and no proper response is obtained.
+     */
+    StringResponse execute( HttpRequestBase httpRequest ){
+        StringResponse strResponse = null;
+        int attempts = 1;
 
-        final URI uri = new URIBuilder()
-                .setScheme(scheme)
-                .setHost(host)
-                .setPath(path)
-                .build();
+        while( strResponse == null && attempts <= this.retries ){
+            if( LOGGER.isDebugEnabled() ){
+                LOGGER.debug( "Start call to partner API (attempt {}) :" + System.lineSeparator() + PluginUtils.requestToString( httpRequest ), attempts );
+            } else {
+                LOGGER.info( "Start call to partner API [{} {}] (attempt {})", httpRequest.getMethod(), httpRequest.getURI(), attempts );
+            }
+            try( CloseableHttpResponse httpResponse = (CloseableHttpResponse) this.client.execute( httpRequest )){
+                strResponse = StringResponse.fromHttpResponse( httpResponse );
+            }
+            catch (IOException e) {
+                LOGGER.error("An error occurred during the HTTP call :", e);
+                strResponse = null;
+            }
+            finally {
+                attempts++;
+            }
+        }
 
-        final HttpGet httpGetRequest = new HttpGet(uri);
-        httpGetRequest.setHeaders(headers);
-        return client.execute(httpGetRequest);
+        if( strResponse == null ){
+            throw new PluginException( "Failed to contact the partner API", FailureCause.COMMUNICATION_ERROR );
+        }
+        LOGGER.info("Response obtained from partner API [{} {}]", strResponse.getStatusCode(), strResponse.getStatusMessage() );
+        return strResponse;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
-    public HttpResponse doPost(String scheme, String host, String path, Header[] headers, String body) throws IOException, URISyntaxException {
+    public StringResponse verifyConection(RequestConfiguration requestConfiguration) {
 
-        final URI uri = new URIBuilder()
-                .setScheme(scheme)
-                .setHost(host)
-                .setPath(path)
-                .build();
+        String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX);
+        if( baseUrl == null ){
+            throw new InvalidDataException( MISSING_API_URL_ERROR );
+        }
 
-        final HttpPost httpPostRequest = new HttpPost(uri);
-        httpPostRequest.setHeaders(headers);
-        httpPostRequest.setEntity(new StringEntity(body));
-        return client.execute(httpPostRequest);
+        // Init request
+        URI uri;
+
+        try {
+            uri = new URI( baseUrl + createPath(PATH_VERSION, PATH_ORDER));
+            //uri = new URI("https://api.sandbox.sharegroop.com/v1/orders/");
+        } catch (URISyntaxException e) {
+            throw new InvalidDataException("Service URL is invalid", e);
+        }
+
+        HttpPost httpPost = new HttpPost( uri );
+
+        if( requestConfiguration.getContractConfiguration().getProperty( Constants.ContractConfigurationKeys.PRIVATE_KEY ) == null ){
+            throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
+        }
+
+        this.privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
+
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, this.privateKeyHolder);
+
+        // Execute request
+        StringResponse response = this.execute( httpPost );
+
+        if(response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}")){
+            System.out.println("Success");
+        }else{
+            System.out.println("Failed");
+        }
+
+
+        // Handle potential error
+        if( !response.isSuccess() ){
+            throw this.handleErrorResponse( response );
+        }
+
+        return response;
+
+
     }
     /**------------------------------------------------------------------------------------------------------------------*/
-    public Orders verifyConection() throws IOException, URISyntaxException {
+    /**
+     * Handle error responses with the specified format.
+     *
+     * @param response The response received, converted as {@link StringResponse}.
+     * @return The {@link PluginException} to throw
+     */
+    PluginException handleErrorResponse( StringResponse response ){
+        System.err.println( response.getContent() ); // TODO: remove !
+        // Trying to parse the error response with the specified format
+        ShareGroopErrorResponse errorResponse;
+        try {
+            errorResponse = ShareGroopErrorResponse.fromJson( response.getContent() );
+        }
+        catch( JsonSyntaxException e ){
+            errorResponse = null;
+        }
 
-        String host = getHost();
+        // Extract error code and message from the error response
+        String message = "partner error: " + response.getStatusCode() + " " + response.getStatusMessage();
+        int errorCode = response.getStatusCode();
+        if( errorResponse != null && errorResponse.getErrors() != null ){
+            message = errorResponse.getErrors();
+            try {
+                errorCode = Integer.parseInt(errorResponse.getStatus());
+            }
+            catch( NumberFormatException e ){
+                LOGGER.error("Unable to parse the response status as an integer: {}", errorResponse.getStatus());
+            }
+        }
 
+        // Mapping between partner error codes and Payline failure causes
+        FailureCause failureCause = FailureCause.PARTNER_UNKNOWN_ERROR;
+        if( errorCode >= 400 && errorCode < 500 ){
+            failureCause = FailureCause.INVALID_DATA;
+        }
 
-        String path =  createPath(Constants.PartnerConfigurationKeys.PATH_VERSION, Constants.PartnerConfigurationKeys.PATH_ORDER);
-
-        String jsonBody = "";
-
-        Header[] headers = createHeaders("sk_test_fb1ec051-4d3a-4f0e-a9dd-40141013e324 ");
-
-        // do the request
-        HttpResponse response = doPost(Constants.PartnerConfigurationKeys.SCHEME, host, path, headers, jsonBody);
-
-        // create object from Template response
-        String responseString = EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
-
-        return parser.fromJson(responseString, Orders.class);
+        return new PluginException(message, failureCause);
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
-
 }

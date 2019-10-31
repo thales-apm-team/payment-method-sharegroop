@@ -1,8 +1,5 @@
 package com.payline.payment.sharegroop.bean.payment;
 
-import com.google.gson.Gson;
-
-
 public class Orders {
     private Integer amount;
     private String ux;
@@ -14,10 +11,6 @@ public class Orders {
     private String lastName;
     private String trackId;
     private Item[] items;
-
-    public Orders() {
-
-    }
 
     public String getUx() {
         return ux;

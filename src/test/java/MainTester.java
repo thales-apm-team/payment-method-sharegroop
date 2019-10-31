@@ -38,7 +38,7 @@ public class MainTester {
 
         Map<String, String> partnerConfigurationMap = new HashMap<>();
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX, "https://api.sandbox.sharegroop.com");
-
+        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "https://api.sharegroop.com");
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
 
         return new PartnerConfiguration( partnerConfigurationMap, sensitiveConfigurationMap );

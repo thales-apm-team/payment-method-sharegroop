@@ -1,7 +1,5 @@
 package com.payline.payment.sharegroop.bean.payment;
 
-import com.google.gson.Gson;
-
 public class Item {
     private String trackId;
     private String name;

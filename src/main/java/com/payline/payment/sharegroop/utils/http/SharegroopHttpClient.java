@@ -1,8 +1,5 @@
 package com.payline.payment.sharegroop.utils.http;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.payline.payment.sharegroop.bean.ShareGroopErrorResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
@@ -12,7 +9,6 @@ import com.payline.payment.sharegroop.utils.properties.ConfigProperties;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.logger.LogManager;
-import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -20,7 +16,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicHeader;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -36,22 +31,11 @@ public class SharegroopHttpClient {
     private ConfigProperties config = ConfigProperties.getInstance();
 
     //Headers
-    private static final String AUTHENTICATION_KEY = "Authorization";
-    private static final String CONTENT_TYPE_KEY = "Content-Type";
-    private static final String CONTENT_TYPE = "application/json";
     private static final String MISSING_API_URL_ERROR = "Missing API base url in partnerConfiguration";
-
 
     // Paths
     public static final String PATH_VERSION = "v1";
     public static final String PATH_ORDER = "orders";
-
-
-    /**
-     * Holder containing the keystore data (keys or certificates).
-     */
-    private String privateKeyHolder;
-
 
     /**
      * The number of time the client must retry to send the request if it doesn't obtain a response.
@@ -59,7 +43,6 @@ public class SharegroopHttpClient {
     private int retries;
 
     private HttpClient client;
-    private Gson parser;
 
     // --- Singleton Holder pattern + initialization BEGIN
     private AtomicBoolean initialized = new AtomicBoolean();
@@ -100,12 +83,15 @@ public class SharegroopHttpClient {
                     .setSocketTimeout(socketTimeout * 1000)
                     .build();
 
-            // TODO : Vérifier la pertinence pour le moyen de paiement
+            if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX ) == null ) {
+                throw new InvalidDataException("Missing SandBox API url from partner configuration (sentitive properties)");
+            }
 
-
+            if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.SHAREGROOP_URL ) == null ){
+                throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
+            }
 
             // instantiate Apache HTTP client
-            //TODO ajouter le sslcontext si cela est pertinant
             this.client = HttpClientBuilder.create()
                     .useSystemProperties()
                     .setDefaultRequestConfig(requestConfig)
@@ -113,13 +99,6 @@ public class SharegroopHttpClient {
         }
     }
     // --- Singleton Holder pattern + initialization END
-    /**------------------------------------------------------------------------------------------------------------------*/
-    private Header[] createHeaders(String authentication) {
-        Header[] headers = new Header[1];
-        //headers[0] = new BasicHeader(CONTENT_TYPE_KEY, CONTENT_TYPE);
-        headers[0] = new BasicHeader(AUTHENTICATION_KEY, authentication);
-        return headers;
-    }
     /**------------------------------------------------------------------------------------------------------------------*/
     public String createPath(String... path) {
         StringBuilder sb = new StringBuilder("/");
@@ -179,7 +158,6 @@ public class SharegroopHttpClient {
 
         try {
             uri = new URI( baseUrl + createPath(PATH_VERSION, PATH_ORDER));
-            //uri = new URI("https://api.sandbox.sharegroop.com/v1/orders/");
         } catch (URISyntaxException e) {
             throw new InvalidDataException("Service URL is invalid", e);
         }
@@ -190,9 +168,9 @@ public class SharegroopHttpClient {
             throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
         }
 
-        this.privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
+        String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
 
-        httpPost.setHeader(HttpHeaders.AUTHORIZATION, this.privateKeyHolder);
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, privateKeyHolder);
 
         // Execute request
         StringResponse response = this.execute( httpPost );
@@ -203,53 +181,7 @@ public class SharegroopHttpClient {
             System.out.println("Failed");
         }
 
-
-        // Handle potential error
-        if( !response.isSuccess() ){
-            throw this.handleErrorResponse( response );
-        }
-
         return response;
-
-
     }
     /**------------------------------------------------------------------------------------------------------------------*/
-    /**
-     * Handle error responses with the specified format.
-     *
-     * @param response The response received, converted as {@link StringResponse}.
-     * @return The {@link PluginException} to throw
-     */
-    PluginException handleErrorResponse( StringResponse response ){
-        System.err.println( response.getContent() ); // TODO: remove !
-        // Trying to parse the error response with the specified format
-        ShareGroopErrorResponse errorResponse;
-        try {
-            errorResponse = ShareGroopErrorResponse.fromJson( response.getContent() );
-        }
-        catch( JsonSyntaxException e ){
-            errorResponse = null;
-        }
-
-        // Extract error code and message from the error response
-        String message = "partner error: " + response.getStatusCode() + " " + response.getStatusMessage();
-        int errorCode = response.getStatusCode();
-        if( errorResponse != null && errorResponse.getErrors() != null ){
-            message = errorResponse.getErrors();
-            try {
-                errorCode = Integer.parseInt(errorResponse.getStatus());
-            }
-            catch( NumberFormatException e ){
-                LOGGER.error("Unable to parse the response status as an integer: {}", errorResponse.getStatus());
-            }
-        }
-
-        // Mapping between partner error codes and Payline failure causes
-        FailureCause failureCause = FailureCause.PARTNER_UNKNOWN_ERROR;
-        if( errorCode >= 400 && errorCode < 500 ){
-            failureCause = FailureCause.INVALID_DATA;
-        }
-
-        return new PluginException(message, failureCause);
-    }
 }

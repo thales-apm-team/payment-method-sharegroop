@@ -47,8 +47,7 @@ public class MainTester {
     private static ContractConfiguration initContractConfiguration(){
 
         ContractConfiguration contractConfiguration = new ContractConfiguration("Sharegroop", new HashMap<>());
-
-        contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty("Test"));
+        contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty( System.getProperty("project.clientPrivateKey")));
 
         return contractConfiguration;
     }

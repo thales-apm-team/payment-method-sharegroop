@@ -17,6 +17,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;

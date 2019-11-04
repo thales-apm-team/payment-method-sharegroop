@@ -44,7 +44,7 @@ public class MockUtils {
      */
     public static ContractConfiguration aContractConfigurationWithPicking(){
         Map<String, ContractProperty> contractProperties = new HashMap<>();
-        contractProperties.put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty( System.getProperty("project.clientPrivateKey") ));
+        contractProperties.put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty( System.getProperty("project.clientPrivateKey")));
         // TODO : Ajouter la clé public dans les variables système
         contractProperties.put(Constants.ContractConfigurationKeys.PUBLIC_KEY, new ContractProperty( System.getProperty("project.clientPublicKey")));
 

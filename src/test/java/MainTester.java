@@ -1,6 +1,6 @@
 import com.payline.payment.sharegroop.MockUtils;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
-import com.payline.payment.sharegroop.bean.payment.Orders;
+import com.payline.payment.sharegroop.bean.payment.Order;
 import com.payline.payment.sharegroop.utils.Constants;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
@@ -17,7 +17,7 @@ public class MainTester {
     private static SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
     /**------------------------------------------------------------------------------------------------------------------*/
     public static void main(String[] args) throws IOException {
-        Orders orders = new Orders();
+        Order order = new Order();
 
         try {
 

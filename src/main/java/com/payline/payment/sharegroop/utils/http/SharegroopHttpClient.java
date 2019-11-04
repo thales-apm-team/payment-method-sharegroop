@@ -1,6 +1,8 @@
 package com.payline.payment.sharegroop.utils.http;
 
+import com.payline.payment.sharegroop.bean.SharegroopCreateOrdersResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
+import com.payline.payment.sharegroop.bean.payment.Order;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.payment.sharegroop.utils.Constants;
@@ -85,10 +87,6 @@ public class SharegroopHttpClient {
     /**------------------------------------------------------------------------------------------------------------------*/
     public static SharegroopHttpClient getInstance() {
         return Holder.instance;
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    public void init(){
-
     }
     // --- Singleton Holder pattern + initialization END
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -197,4 +195,46 @@ public class SharegroopHttpClient {
         return result;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     *  Create a transaction
+     * @param requestConfiguration
+     * @return
+     */
+    public Order CreateOrder(RequestConfiguration requestConfiguration) {
+        // Check if API url are present
+        verifyPartnerConfiguartionURL(requestConfiguration.getPartnerConfiguration());
+
+        String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX);
+        if( baseUrl == null ){
+            throw new InvalidDataException( MISSING_API_URL_ERROR );
+        }
+
+        // Init request
+        URI uri;
+
+        try {
+            uri = new URI( baseUrl + createPath(PATH_VERSION, PATH_ORDER));
+        } catch (URISyntaxException e) {
+            throw new InvalidDataException("Service URL is invalid", e);
+        }
+
+        HttpPost httpPost = new HttpPost( uri );
+
+        if( requestConfiguration.getContractConfiguration().getProperty( Constants.ContractConfigurationKeys.PRIVATE_KEY ).getValue() == null ){
+            throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
+        }
+
+        String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
+
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, privateKeyHolder);
+
+        // Execute request
+        StringResponse response = this.execute( httpPost );
+
+        SharegroopCreateOrdersResponse sharegroopCreateOrdersResponse = SharegroopCreateOrdersResponse.fromJson(response.getContent());
+
+        return sharegroopCreateOrdersResponse.getData().getOrder();
+    }
+
+
 }

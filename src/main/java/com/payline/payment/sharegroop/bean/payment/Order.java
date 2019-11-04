@@ -1,6 +1,9 @@
 package com.payline.payment.sharegroop.bean.payment;
 
-public class Orders {
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+public class Order {
     private Integer amount;
     private String ux;
     private String currency;
@@ -90,5 +93,10 @@ public class Orders {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public static Order fromJson(String json ){
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
+        return gson.fromJson( json, Order.class );
     }
 }

@@ -106,8 +106,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Map<String, ContractProperty> contractProperties = requestConfiguration.getContractConfiguration().getContractProperties();
         contractProperties.put( clientPrivateKey, new ContractProperty( accountInfo.get( clientPrivateKey ) ) );
 
-        // Init HTTP client
-        sharegroopHttpClient.init();
+
         try {
             // Try to retrieve an access token
             sharegroopHttpClient.verifyPrivateKey(requestConfiguration);

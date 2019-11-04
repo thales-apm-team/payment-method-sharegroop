@@ -1,5 +1,8 @@
 package com.payline.payment.sharegroop.bean.payment;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class Item {
     private String trackId;
     private String name;
@@ -45,5 +48,10 @@ public class Item {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public static Item fromJson(String json ){
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
+        return gson.fromJson( json, Item.class );
     }
 }

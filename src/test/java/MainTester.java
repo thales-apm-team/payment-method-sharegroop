@@ -6,7 +6,6 @@ import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.ContractProperty;
-import com.payline.payment.sharegroop.utils.http.StringResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class MainTester {
             RequestConfiguration requestConfiguration = new RequestConfiguration(initContractConfiguration(), MockUtils.anEnvironment(), partnerConfiguration);
 
             sharegroopHttpClient.init(partnerConfiguration);
-            StringResponse response = sharegroopHttpClient.verifyConection(requestConfiguration);
+            sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
 
         } catch (Exception e) {
             e.printStackTrace();

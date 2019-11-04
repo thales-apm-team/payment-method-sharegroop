@@ -17,7 +17,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -146,7 +145,7 @@ public class SharegroopHttpClient {
         return strResponse;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
-    public StringResponse verifyConection(RequestConfiguration requestConfiguration) {
+    public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX);
         if( baseUrl == null ){
@@ -164,7 +163,7 @@ public class SharegroopHttpClient {
 
         HttpPost httpPost = new HttpPost( uri );
 
-        if( requestConfiguration.getContractConfiguration().getProperty( Constants.ContractConfigurationKeys.PRIVATE_KEY ) == null ){
+        if( requestConfiguration.getContractConfiguration().getProperty( Constants.ContractConfigurationKeys.PRIVATE_KEY ).getValue() == null ){
             throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
         }
 
@@ -176,12 +175,10 @@ public class SharegroopHttpClient {
         StringResponse response = this.execute( httpPost );
 
         if(response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}")){
-            System.out.println("Success");
-        }else{
-            System.out.println("Failed");
+            return true;
         }
 
-        return response;
+        return false;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
 }

@@ -110,7 +110,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         sharegroopHttpClient.init( requestConfiguration.getPartnerConfiguration() );
         try {
             // Try to retrieve an access token
-            sharegroopHttpClient.verifyConection(requestConfiguration);
+            sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
         }
         catch( PluginException e ){
             // If an exception is thrown, it means that the clientprivate key is wrong

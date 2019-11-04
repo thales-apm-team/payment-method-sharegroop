@@ -2,6 +2,7 @@ package com.payline.payment.sharegroop.utils.http;
 
 import com.payline.payment.sharegroop.bean.SharegroopCreateOrdersResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
+import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.bean.payment.Order;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
@@ -17,14 +18,15 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 
 
 public class SharegroopHttpClient {
@@ -33,7 +35,11 @@ public class SharegroopHttpClient {
     private ConfigProperties config = ConfigProperties.getInstance();
 
     //Headers
+    private static final String CONTENT_TYPE_VALUE = "application/json";
+
+    //Exceptions
     private static final String MISSING_API_URL_ERROR = "Missing API base url in partnerConfiguration";
+
 
     // Paths
     public static final String PATH_VERSION = "v1";
@@ -48,9 +54,12 @@ public class SharegroopHttpClient {
 
     // --- Singleton Holder pattern + initialization BEGIN
     private AtomicBoolean initialized = new AtomicBoolean();
-    /**------------------------------------------------------------------------------------------------------------------*/
-    SharegroopHttpClient(){
-        if( this.initialized.compareAndSet(false, true) ){
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
+    SharegroopHttpClient() {
+        if (this.initialized.compareAndSet(false, true)) {
             int connectionRequestTimeout;
             int connectTimeout;
             int socketTimeout;
@@ -62,8 +71,7 @@ public class SharegroopHttpClient {
 
                 // retries
                 this.retries = Integer.parseInt(config.get("http.retries"));
-            }
-            catch( NumberFormatException e ){
+            } catch (NumberFormatException e) {
                 throw new PluginException("plugin error: http.* properties must be integers", e);
             }
 
@@ -80,16 +88,25 @@ public class SharegroopHttpClient {
                     .build();
         }
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
     private static class Holder {
         private static final SharegroopHttpClient instance = new SharegroopHttpClient();
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
     public static SharegroopHttpClient getInstance() {
         return Holder.instance;
     }
     // --- Singleton Holder pattern + initialization END
-    /**------------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
     public String createPath(String... path) {
         StringBuilder sb = new StringBuilder("/");
         if (path != null && path.length > 0) {
@@ -107,51 +124,51 @@ public class SharegroopHttpClient {
      * @return The response converted as a {@link StringResponse}.
      * @throws PluginException If an error repeatedly occurs and no proper response is obtained.
      */
-    StringResponse execute( HttpRequestBase httpRequest ){
+    StringResponse execute(HttpRequestBase httpRequest) {
         StringResponse strResponse = null;
         int attempts = 1;
 
-        while( strResponse == null && attempts <= this.retries ){
-            if( LOGGER.isDebugEnabled() ){
-                LOGGER.debug( "Start call to partner API (attempt {}) :" + System.lineSeparator() + PluginUtils.requestToString( httpRequest ), attempts );
+        while (strResponse == null && attempts <= this.retries) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Start call to partner API (attempt {}) :" + System.lineSeparator() + PluginUtils.requestToString(httpRequest), attempts);
             } else {
-                LOGGER.info( "Start call to partner API [{} {}] (attempt {})", httpRequest.getMethod(), httpRequest.getURI(), attempts );
+                LOGGER.info("Start call to partner API [{} {}] (attempt {})", httpRequest.getMethod(), httpRequest.getURI(), attempts);
             }
-            try( CloseableHttpResponse httpResponse = (CloseableHttpResponse) this.client.execute( httpRequest )){
-                strResponse = StringResponse.fromHttpResponse( httpResponse );
-            }
-            catch (IOException e) {
+            try (CloseableHttpResponse httpResponse = (CloseableHttpResponse) this.client.execute(httpRequest)) {
+                strResponse = StringResponse.fromHttpResponse(httpResponse);
+            } catch (IOException e) {
                 LOGGER.error("An error occurred during the HTTP call :", e);
                 strResponse = null;
-            }
-            finally {
+            } finally {
                 attempts++;
             }
         }
 
-        if( strResponse == null ){
-            throw new PluginException( "Failed to contact the partner API", FailureCause.COMMUNICATION_ERROR );
+        if (strResponse == null) {
+            throw new PluginException("Failed to contact the partner API", FailureCause.COMMUNICATION_ERROR);
         }
-        LOGGER.info("Response obtained from partner API [{} {}]", strResponse.getStatusCode(), strResponse.getStatusMessage() );
+        LOGGER.info("Response obtained from partner API [{} {}]", strResponse.getStatusCode(), strResponse.getStatusMessage());
         return strResponse;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
      * Verify if API url are present
+     *
      * @param partnerConfiguration
      */
-    public void verifyPartnerConfiguartionURL(PartnerConfiguration partnerConfiguration){
-        if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX ) == null ) {
+    public void verifyPartnerConfiguartionURL(PartnerConfiguration partnerConfiguration) {
+        if (partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX) == null) {
             throw new InvalidDataException("Missing SandBox API url from partner configuration (sentitive properties)");
         }
 
-        if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.SHAREGROOP_URL ) == null ) {
+        if (partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL) == null) {
             throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
         }
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
      * Verify if the private key is valid
+     *
      * @param requestConfiguration
      * @return
      */
@@ -161,22 +178,22 @@ public class SharegroopHttpClient {
         verifyPartnerConfiguartionURL(requestConfiguration.getPartnerConfiguration());
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX);
-        if( baseUrl == null ){
-            throw new InvalidDataException( MISSING_API_URL_ERROR );
+        if (baseUrl == null) {
+            throw new InvalidDataException(MISSING_API_URL_ERROR);
         }
 
         // Init request
         URI uri;
 
         try {
-            uri = new URI( baseUrl + createPath(PATH_VERSION, PATH_ORDER));
+            uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER));
         } catch (URISyntaxException e) {
             throw new InvalidDataException("Service URL is invalid", e);
         }
 
-        HttpPost httpPost = new HttpPost( uri );
+        HttpPost httpPost = new HttpPost(uri);
 
-        if( requestConfiguration.getContractConfiguration().getProperty( Constants.ContractConfigurationKeys.PRIVATE_KEY ).getValue() == null ){
+        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {
             throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
         }
 
@@ -185,55 +202,63 @@ public class SharegroopHttpClient {
         httpPost.setHeader(HttpHeaders.AUTHORIZATION, privateKeyHolder);
 
         // Execute request
-        StringResponse response = this.execute( httpPost );
-        Boolean result  = false;
+        StringResponse response = this.execute(httpPost);
+        Boolean result = false;
 
-        if(response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}")){
-            result =  true;
+        if (response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}")) {
+            result = true;
         }
 
         return result;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
-     *  Create a transaction
+     * Create a transaction
+     *
      * @param requestConfiguration
      * @return
      */
-    public Order CreateOrder(RequestConfiguration requestConfiguration) {
+    public Data createOrder(RequestConfiguration requestConfiguration, Order order) {
         // Check if API url are present
         verifyPartnerConfiguartionURL(requestConfiguration.getPartnerConfiguration());
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX);
-        if( baseUrl == null ){
-            throw new InvalidDataException( MISSING_API_URL_ERROR );
+        if (baseUrl == null) {
+            throw new InvalidDataException(MISSING_API_URL_ERROR);
         }
 
         // Init request
         URI uri;
 
         try {
-            uri = new URI( baseUrl + createPath(PATH_VERSION, PATH_ORDER));
+            uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER));
         } catch (URISyntaxException e) {
             throw new InvalidDataException("Service URL is invalid", e);
         }
 
-        HttpPost httpPost = new HttpPost( uri );
+        HttpPost httpPost = new HttpPost(uri);
 
-        if( requestConfiguration.getContractConfiguration().getProperty( Constants.ContractConfigurationKeys.PRIVATE_KEY ).getValue() == null ){
+        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {
             throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
         }
 
+        // Headers
         String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
-
         httpPost.setHeader(HttpHeaders.AUTHORIZATION, privateKeyHolder);
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, this.CONTENT_TYPE_VALUE);
+
+        // Body
+        String jsonBody = order.toString();
+        httpPost.setEntity( new StringEntity( jsonBody, StandardCharsets.UTF_8 ));
+
 
         // Execute request
-        StringResponse response = this.execute( httpPost );
+        StringResponse response = this.execute(httpPost);
 
         SharegroopCreateOrdersResponse sharegroopCreateOrdersResponse = SharegroopCreateOrdersResponse.fromJson(response.getContent());
+        Data data = sharegroopCreateOrdersResponse.getData();
 
-        return sharegroopCreateOrdersResponse.getData().getOrder();
+        return data;
     }
 
 

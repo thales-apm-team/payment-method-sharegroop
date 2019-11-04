@@ -99,4 +99,13 @@ public class Order {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
         return gson.fromJson( json, Order.class );
     }
+
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+                .disableHtmlEscaping()
+                .create();
+        return gson.toJson( this );
+    }
 }

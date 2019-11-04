@@ -2,6 +2,7 @@ package com.payline.payment.sharegroop.utils.http;
 
 import com.payline.payment.sharegroop.MockUtils;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
+import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
@@ -15,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.internal.util.reflection.FieldSetter;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -98,9 +98,44 @@ public class SharegroopHttpClientTest {
         assertThrows( PluginException.class, () -> sharegroopHttpClient.execute( request ) );
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    // --- Test SharegroopHttpClient#CreateOrder ---
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void createOrder_nominal(){
+        // given: Valid parameter  to create a request configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
+
+
+        doReturn(MockUtils.createOrderValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
+
+        // when : calling verifyConnection method
+        Data result = sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder());
+
+        // then
+        assertNotNull(result);
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void createOrder_missingApiUrl(){
+        // given: the API base URL is missing from the partner configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
+
+        // when calling the paymentInit method, an exception is thrown
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder()));
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+@Test
+    void createOrder_invalidApiUrl(){
+        // given: the API base URL is missing from the partner configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+
+        // when calling the paymentInit method, an exception is thrown
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder()));
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
     // --- Test SharegroopHttpClient#VerifyConnection ---
     /**------------------------------------------------------------------------------------------------------------------*/
-    //TODO : Voir avec Sébastien comment traiter ce cas
+
 
     @Test
     void verifyPrivateKey_nominal(){
@@ -108,7 +143,7 @@ public class SharegroopHttpClientTest {
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
 
-        doReturn(MockUtils.VerifyPrivateKeyValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
+        doReturn(MockUtils.verifyPrivateKeyValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
 
         // when : calling verifyConnection method
         Boolean result = sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
@@ -126,7 +161,7 @@ public class SharegroopHttpClientTest {
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyPrivateKey(requestConfiguration));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
-@Test
+    @Test
     void verifyPrivateKey_invalidApiUrl(){
         // given: the API base URL is missing from the partner configuration
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());

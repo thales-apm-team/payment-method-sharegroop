@@ -6,6 +6,7 @@ import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.mockito.internal.util.reflection.FieldSetter;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.*;
 public class SharegroopHttpClientTest {
 
     @InjectMocks
+    @Spy
     private SharegroopHttpClient sharegroopHttpClient;
     @Mock
     private CloseableHttpClient http;
@@ -35,10 +38,6 @@ public class SharegroopHttpClientTest {
         // Init tested instance and inject mocks
         sharegroopHttpClient = new SharegroopHttpClient();
         MockitoAnnotations.initMocks(this);
-
-        // Manual init of private attributes
-        FieldSetter.setField( sharegroopHttpClient, sharegroopHttpClient.getClass().getDeclaredField("retries"), 3);
-
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     // --- Test SharegroopHttpClient#execute ---
@@ -101,19 +100,22 @@ public class SharegroopHttpClientTest {
     /**------------------------------------------------------------------------------------------------------------------*/
     // --- Test SharegroopHttpClient#VerifyConnection ---
     /**------------------------------------------------------------------------------------------------------------------*/
-   /* @Test
+    //TODO : Voir avec Sébastien comment traiter ce cas
+
+    @Test
     void verifyPrivateKey_nominal(){
         // given: Valid parameter  to create a request configuration
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
-        sharegroopHttpClient.init(MockUtils.aPartnerConfiguration());
+
+        doReturn(MockUtils.VerifyPrivateKeyValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
 
         // when : calling verifyConnection method
         Boolean result = sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
 
         // then
         assertTrue(result);
-    }*/
+    }
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test
     void verifyPrivateKey_missingApiUrl(){

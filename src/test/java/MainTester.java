@@ -24,7 +24,6 @@ public class MainTester {
             PartnerConfiguration partnerConfiguration = initPartnerConfiguration();
             RequestConfiguration requestConfiguration = new RequestConfiguration(initContractConfiguration(), MockUtils.anEnvironment(), partnerConfiguration);
 
-            sharegroopHttpClient.init(partnerConfiguration);
             sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
 
         } catch (Exception e) {

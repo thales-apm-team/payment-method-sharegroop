@@ -48,18 +48,6 @@ public class SharegroopHttpClient {
     private AtomicBoolean initialized = new AtomicBoolean();
     /**------------------------------------------------------------------------------------------------------------------*/
     SharegroopHttpClient(){
-
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    private static class Holder {
-        private static final SharegroopHttpClient instance = new SharegroopHttpClient();
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    public static SharegroopHttpClient getInstance() {
-        return Holder.instance;
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    public void init( PartnerConfiguration partnerConfiguration ){
         if( this.initialized.compareAndSet(false, true) ){
             int connectionRequestTimeout;
             int connectTimeout;
@@ -83,20 +71,24 @@ public class SharegroopHttpClient {
                     .setSocketTimeout(socketTimeout * 1000)
                     .build();
 
-            if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX ) == null ) {
-                throw new InvalidDataException("Missing SandBox API url from partner configuration (sentitive properties)");
-            }
-
-            if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.SHAREGROOP_URL ) == null ){
-                throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
-            }
-
             // instantiate Apache HTTP client
             this.client = HttpClientBuilder.create()
                     .useSystemProperties()
                     .setDefaultRequestConfig(requestConfig)
                     .build();
         }
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    private static class Holder {
+        private static final SharegroopHttpClient instance = new SharegroopHttpClient();
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    public static SharegroopHttpClient getInstance() {
+        return Holder.instance;
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    public void init(){
+
     }
     // --- Singleton Holder pattern + initialization END
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -146,7 +138,29 @@ public class SharegroopHttpClient {
         return strResponse;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Verify if API url are present
+     * @param partnerConfiguration
+     */
+    public void verifyPartnerConfiguartionURL(PartnerConfiguration partnerConfiguration){
+        if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX ) == null ) {
+            throw new InvalidDataException("Missing SandBox API url from partner configuration (sentitive properties)");
+        }
+
+        if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.SHAREGROOP_URL ) == null ) {
+            throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
+        }
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Verify if the private key is valid
+     * @param requestConfiguration
+     * @return
+     */
     public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
+
+        // Check if API url are present
+        verifyPartnerConfiguartionURL(requestConfiguration.getPartnerConfiguration());
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX);
         if( baseUrl == null ){

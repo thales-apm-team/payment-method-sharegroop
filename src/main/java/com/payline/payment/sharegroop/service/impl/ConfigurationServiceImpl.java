@@ -94,20 +94,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
 
-        // If client private key is missing, no need to go further, as it is equired
+        // If client private key is missing, no need to go further, as it is required
         String clientPrivateKey = Constants.ContractConfigurationKeys.PRIVATE_KEY;
 
         if( errors.containsKey(clientPrivateKey)){
             return errors;
         }
 
-        // Check validity of the private key by executing the verify function
+        // Check validity of the private key by executing the verifyPrivateKey function
         RequestConfiguration requestConfiguration = RequestConfiguration.build( contractParametersCheckRequest );
         Map<String, ContractProperty> contractProperties = requestConfiguration.getContractConfiguration().getContractProperties();
         contractProperties.put( clientPrivateKey, new ContractProperty( accountInfo.get( clientPrivateKey ) ) );
 
         // Init HTTP client
-        sharegroopHttpClient.init( requestConfiguration.getPartnerConfiguration() );
+        sharegroopHttpClient.init();
         try {
             // Try to retrieve an access token
             sharegroopHttpClient.verifyPrivateKey(requestConfiguration);

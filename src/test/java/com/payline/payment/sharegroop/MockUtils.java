@@ -1,6 +1,8 @@
 package com.payline.payment.sharegroop;
 
 import com.payline.payment.sharegroop.utils.Constants;
+import com.payline.payment.sharegroop.utils.http.HttpTestUtils;
+import com.payline.payment.sharegroop.utils.http.StringResponse;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.ContractProperty;
@@ -28,10 +30,8 @@ public class MockUtils {
     public static ContractConfiguration aContractConfigurationWithCollect(){
         Map<String, ContractProperty> contractProperties = new HashMap<>();
 
-        contractProperties.put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty( System.getProperty("project.clientPrivateKey")));
-
-        // TODO : Ajouter la clé public dans les variables système
-        contractProperties.put(Constants.ContractConfigurationKeys.PUBLIC_KEY, new ContractProperty( System.getProperty("project.clientPublicKey")));
+        contractProperties.put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty( "PrivateKey"));
+        contractProperties.put(Constants.ContractConfigurationKeys.PUBLIC_KEY, new ContractProperty( "PublicKey"));
 
         contractProperties.put(Constants.ContractConfigurationKeys.SECURE_3D, new ContractProperty("true"));
         contractProperties.put(Constants.ContractConfigurationKeys.UX, new ContractProperty("collect"));
@@ -44,9 +44,9 @@ public class MockUtils {
      */
     public static ContractConfiguration aContractConfigurationWithPicking(){
         Map<String, ContractProperty> contractProperties = new HashMap<>();
-        contractProperties.put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty( System.getProperty("project.clientPrivateKey")));
-        // TODO : Ajouter la clé public dans les variables système
-        contractProperties.put(Constants.ContractConfigurationKeys.PUBLIC_KEY, new ContractProperty( System.getProperty("project.clientPublicKey")));
+
+        contractProperties.put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty( "PrivateKey"));
+        contractProperties.put(Constants.ContractConfigurationKeys.PUBLIC_KEY, new ContractProperty( "PublicKey"));
 
         contractProperties.put(Constants.ContractConfigurationKeys.SECURE_3D, new ContractProperty("true"));
         contractProperties.put(Constants.ContractConfigurationKeys.UX, new ContractProperty("picking"));
@@ -82,5 +82,8 @@ public class MockUtils {
         return new PartnerConfiguration( partnerConfigurationMap, sensitiveConfigurationMap );
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    public static StringResponse VerifyPrivateKeyValidResponse(){
+        return HttpTestUtils.mockStringResponse(400,"Bad Request", "{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}",null );
+    }
 
 }

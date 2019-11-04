@@ -174,12 +174,13 @@ public class SharegroopHttpClient {
 
         // Execute request
         StringResponse response = this.execute( httpPost );
+        Boolean result  = false;
 
         if(response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}")){
-            return true;
+            result =  true;
         }
 
-        return false;
+        return result;
     }
     /**------------------------------------------------------------------------------------------------------------------*/
 }

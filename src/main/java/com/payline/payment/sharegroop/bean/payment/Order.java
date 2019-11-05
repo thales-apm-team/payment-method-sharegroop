@@ -12,8 +12,14 @@ public class Order {
     private String email;
     private String firstName;
     private String lastName;
-    private String trackId;
-    private Item[] items;
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
 
     public String getUx() {
         return ux;
@@ -87,13 +93,9 @@ public class Order {
         this.items = items;
     }
 
-    public Integer getAmount() {
-        return amount;
-    }
+    private String trackId;
+    private Item[] items;
 
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
 
     public static Order fromJson(String json ){
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();

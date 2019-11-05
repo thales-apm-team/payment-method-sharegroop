@@ -245,7 +245,7 @@ public class SharegroopHttpClient {
         // Headers
         String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
         httpPost.setHeader(HttpHeaders.AUTHORIZATION, privateKeyHolder);
-        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, this.CONTENT_TYPE_VALUE);
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_VALUE);
 
         // Body
         String jsonBody = order.toString();
@@ -256,9 +256,9 @@ public class SharegroopHttpClient {
         StringResponse response = this.execute(httpPost);
 
         SharegroopCreateOrdersResponse sharegroopCreateOrdersResponse = SharegroopCreateOrdersResponse.fromJson(response.getContent());
-        Data data = sharegroopCreateOrdersResponse.getData();
+        return sharegroopCreateOrdersResponse.getData();
 
-        return data;
+
     }
 
 

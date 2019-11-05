@@ -30,6 +30,7 @@ public class MockUtils {
     /**
      * Generate a valid {@link ContractConfiguration}.
      */
+    // TODO: aContractconfiguration() suffit. surcharge si besoin de valeurs différentes.
     public static ContractConfiguration aContractConfigurationWithCollect() {
         Map<String, ContractProperty> contractProperties = new HashMap<>();
 
@@ -45,6 +46,7 @@ public class MockUtils {
     /**
      * Generate a valid {@link ContractConfiguration}.
      */
+    // TODO: aContractconfiguration() suffit. surcharge si besoin de valeurs différentes.
     public static ContractConfiguration aContractConfigurationWithPicking() {
         Map<String, ContractProperty> contractProperties = new HashMap<>();
 

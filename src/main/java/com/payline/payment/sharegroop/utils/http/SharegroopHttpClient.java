@@ -177,6 +177,7 @@ public class SharegroopHttpClient {
     public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
 
         // Check if API url are present
+        // TODO: Une seule vérification de la présence de l'URL suffit
         verifyPartnerConfiguartionURL(requestConfiguration.getPartnerConfiguration());
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX);
@@ -222,6 +223,7 @@ public class SharegroopHttpClient {
      */
     public Data createOrder(RequestConfiguration requestConfiguration, Order order) {
         // Check if API url are present
+        // TODO: idem, double vérif de l'URL pas nécessaire
         verifyPartnerConfiguartionURL(requestConfiguration.getPartnerConfiguration());
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX);

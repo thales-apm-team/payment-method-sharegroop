@@ -6,6 +6,7 @@ import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
+import com.payline.pmapi.bean.payment.ContractConfiguration;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -101,11 +102,10 @@ public class SharegroopHttpClientTest {
     // --- Test SharegroopHttpClient#CreateOrder ---
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test
-    void createOrder_nominal(){
+    void createOrder_nominal() throws IOException {
         // given: Valid parameter  to create a request configuration
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
-
-
+        // TODO: N'ajouter dans les classes utilitaires que le code utilisé à plusieurs endroits
         doReturn(MockUtils.createOrderValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
 
         // when : calling verifyConnection method
@@ -113,6 +113,8 @@ public class SharegroopHttpClientTest {
 
         // then
         assertNotNull(result);
+        // TODO: prendre l'habitude de vérifier que les mocks sont bien appliqués (en particulier dans les cas où on attend une erreur)
+        verify( http, never() ).execute( any(HttpRequestBase.class) );
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test

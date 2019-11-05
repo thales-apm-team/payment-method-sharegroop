@@ -43,6 +43,8 @@ public class MainTester {
     private static PartnerConfiguration initPartnerConfiguration() throws IOException {
 
         Map<String, String> partnerConfigurationMap = new HashMap<>();
+        // TODO: 1 seule entrée dans PartnerConfiguration pour l'URL. C'est la valeur qui changera selon l'environnement.
+        // TODO: différencier clé et valeur. La constante, c'est la clé !
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX, "https://api.sandbox.sharegroop.com");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "https://api.sharegroop.com");
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();

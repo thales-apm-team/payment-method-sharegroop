@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -244,22 +246,24 @@ public class SharegroopHttpClient {
 
         // Headers
         String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
-        httpPost.setHeader(HttpHeaders.AUTHORIZATION, privateKeyHolder);
-        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_VALUE);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaders.AUTHORIZATION, privateKeyHolder);
+        headers.put(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_VALUE);
+
+        for (Map.Entry<String, String> h : headers.entrySet()) {
+            httpPost.setHeader(h.getKey(), h.getValue());
+        }
 
         // Body
         String jsonBody = order.toString();
         httpPost.setEntity( new StringEntity( jsonBody, StandardCharsets.UTF_8 ));
 
-
         // Execute request
         StringResponse response = this.execute(httpPost);
 
-        SharegroopCreateOrdersResponse sharegroopCreateOrdersResponse = SharegroopCreateOrdersResponse.fromJson(response.getContent());
-        return sharegroopCreateOrdersResponse.getData();
-
-
+        return SharegroopCreateOrdersResponse.fromJson(response.getContent()).getData();
     }
-
+    /**------------------------------------------------------------------------------------------------------------------*/
 
 }

@@ -31,6 +31,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private ReleaseProperties releaseProperties = ReleaseProperties.getInstance();
     private SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
 
+    /**------------------------------------------------------------------------------------------------------------------*/
     @Override
     public List<AbstractParameter> getParameters(Locale locale) {
 
@@ -76,7 +77,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         return parameters;
     }
-
+    /**------------------------------------------------------------------------------------------------------------------*/
     @Override
     public Map<String, String> check(ContractParametersCheckRequest contractParametersCheckRequest) {
 
@@ -118,7 +119,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         return errors;
     }
-
+    /**------------------------------------------------------------------------------------------------------------------*/
     @Override
     public ReleaseInformation getReleaseInformation() {
         return ReleaseInformation.ReleaseBuilder.aRelease()
@@ -126,7 +127,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 .withVersion( releaseProperties.get("release.version") )
                 .build();
     }
-
+    /**------------------------------------------------------------------------------------------------------------------*/
     @Override
     public String getName(Locale locale) {
         return i18n.getMessage("paymentMethod.name", locale);

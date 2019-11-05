@@ -26,7 +26,7 @@ public class MainTester {
             RequestConfiguration requestConfiguration = new RequestConfiguration(initContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
             // Test : VerifyPrivateKey
-            // sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
+             sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
 
 
             // Test : CreateOrder
@@ -57,4 +57,5 @@ public class MainTester {
 
         return contractConfiguration;
     }
+    /**------------------------------------------------------------------------------------------------------------------*/
 }

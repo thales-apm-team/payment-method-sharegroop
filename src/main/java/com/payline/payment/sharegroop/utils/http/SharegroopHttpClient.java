@@ -223,10 +223,6 @@ public class SharegroopHttpClient {
 
         HttpPost httpPost = new HttpPost(uri);
 
-        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {
-            throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
-        }
-
         // Headers
         String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
 
@@ -248,5 +244,7 @@ public class SharegroopHttpClient {
         return SharegroopCreateOrdersResponse.fromJson(response.getContent()).getData();
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+
+
 
 }

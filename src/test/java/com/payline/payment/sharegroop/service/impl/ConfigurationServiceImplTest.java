@@ -2,18 +2,26 @@ package com.payline.payment.sharegroop.service.impl;
 
 import com.payline.payment.sharegroop.MockUtils;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
+import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.payment.sharegroop.utils.properties.ReleaseProperties;
 import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.ListBoxParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
+import com.payline.pmapi.bean.payment.ContractConfiguration;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Month;
 import java.util.*;
@@ -25,7 +33,8 @@ public class ConfigurationServiceImplTest {
 
     @Mock SharegroopHttpClient sharegroopHttpClient;
     @Mock private ReleaseProperties releaseProperties;
-
+    @Mock private CloseableHttpClient http;
+    @Spy
     @InjectMocks
     private ConfigurationServiceImpl service;
 
@@ -46,6 +55,17 @@ public class ConfigurationServiceImplTest {
 
         // then: error map is empty
         assertTrue( errors.isEmpty() );
+    }/**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void check_invalidPrivateKey() throws IOException {
+        // given: a valid configuration, including client ID / secret
+        ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
+
+        doThrow( PluginException.class ).when( sharegroopHttpClient ).verifyPrivateKey(any(RequestConfiguration.class));
+
+         // when: checking the configuration
+        assertTrue(service.check( checkRequest ).size() > 0);
+
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test

@@ -39,10 +39,6 @@ public class SharegroopHttpClient {
     //Headers
     private static final String CONTENT_TYPE_VALUE = "application/json";
 
-    //Exceptions
-    private static final String MISSING_API_URL_ERROR = "Missing API base url in partnerConfiguration";
-
-
     // Paths
     public static final String PATH_VERSION = "v1";
     public static final String PATH_ORDER = "orders";
@@ -156,12 +152,18 @@ public class SharegroopHttpClient {
     /**
      * Verify if API url are present
      *
-     * @param partnerConfiguration
+     * @param requestConfiguration
      */
-    public void verifyPartnerConfiguartionURL(PartnerConfiguration partnerConfiguration) {
-        if (partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL) == null) {
+    public void verifyPartnerConfiguartionURL(RequestConfiguration requestConfiguration) {
+        if (requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL) == null) {
             throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
         }
+
+        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {
+            throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
+        }
+
+
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -173,7 +175,7 @@ public class SharegroopHttpClient {
     public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
 
         // Check if API url are present
-        verifyPartnerConfiguartionURL(requestConfiguration.getPartnerConfiguration());
+        verifyPartnerConfiguartionURL(requestConfiguration);
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL);
 
@@ -187,10 +189,6 @@ public class SharegroopHttpClient {
         }
 
         HttpPost httpPost = new HttpPost(uri);
-
-        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {
-            throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
-        }
 
         String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
 
@@ -210,7 +208,7 @@ public class SharegroopHttpClient {
      */
     public Data createOrder(RequestConfiguration requestConfiguration, Order order) {
         // Check if API url are present
-        verifyPartnerConfiguartionURL(requestConfiguration.getPartnerConfiguration());
+        verifyPartnerConfiguartionURL(requestConfiguration);
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL);
 

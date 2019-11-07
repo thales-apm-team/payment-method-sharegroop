@@ -183,7 +183,6 @@ public class SharegroopHttpClientTest {
         // given: Valid parameter  to create a request configuration
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
-
         doReturn(MockUtils.verifyPrivateKeyValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
 
         // when : calling verifyConnection method

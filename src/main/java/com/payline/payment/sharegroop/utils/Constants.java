@@ -26,9 +26,7 @@ public class Constants {
      */
     public static class PartnerConfigurationKeys {
 
-        //TODO : Effacer l'url de sandBox et utiliser l'URL de prod
-        public static final String SHAREGROOP_URL_SANDBOX = "https://api.sandbox.sharegroop.com";
-        public static final String SHAREGROOP_URL = "https://api.sharegroop.com";
+        public static final String SHAREGROOP_URL = "SHAREGROOP_URL";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private PartnerConfigurationKeys(){}

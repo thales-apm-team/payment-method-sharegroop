@@ -104,9 +104,48 @@ public class SharegroopHttpClientTest {
     @Test
     void createOrder_nominal() throws IOException {
         // given: Valid parameter  to create a request configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
-        // TODO: N'ajouter dans les classes utilitaires que le code utilisé à plusieurs endroits
-        doReturn(MockUtils.createOrderValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
+
+        String content = "{\"success\":true," +
+                "\"data\":{" +
+                "\"id\":\"ord_92aa7cfc-45df-4cf8-96f9-dd19b4bb3d09\"," +
+                "\"platformId\":\"pl_5ee79772-d68b-4e83-b334-b9b5c0349738\"," +
+                "\"amount\":10000," +
+                "\"amountConfirmed\":0," +
+                "\"delay\":8640," +
+                "\"secure3D\":true," +
+                "\"currency\":\"EUR\"," +
+                "\"locale\":\"en\"," +
+                "\"ux\":\"collect\"," +
+                "\"type\":\"direct\"," +
+                "\"status\":\"initiated\"," +
+                "\"createdAt\":1572886069520," +
+                "\"email\":\"captain@example.com\"," +
+                "\"firstName\":\"John\"," +
+                "\"lastName\":\"Carter\"," +
+                "\"trackId\":\"MY-INTERN-ID\"," +
+                "\"items\":[{" +
+                "\"id\":\"itm_e030779a-e943-46c4-95d8-0436bd678cd8\"," +
+                "\"name\":\"Product A\"," +
+                "\"amount\":2200," +
+                "\"quantity\":1," +
+                "\"trackId\":\"MY-ITEM-ID\"," +
+                "\"description\":\"Description A\"}," +
+                "{\"id\":\"itm_803cadd2-2bdd-4664-a926-571bd5c9314e\"," +
+                "\"name\":\"Product B\"," +
+                "\"amount\":5000," +
+                "\"quantity\":1," +
+                "\"description\":\"Description B\"}," +
+                "{\"id\":\"itm_3eedca1c-622b-4cd3-b0b5-64d45a22d3a4\"," +
+                "\"name\":\"Product C\"," +
+                "\"amount\":2800," +
+                "\"quantity\":1}]," +
+                "\"dueDate\":1573404469576}}";
+
+        StringResponse response =  HttpTestUtils.mockStringResponse(200, "OK", content, null);
+
+
+        doReturn(response).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
 
         // when : calling verifyConnection method
         Data result = sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder());
@@ -120,7 +159,7 @@ public class SharegroopHttpClientTest {
     @Test
     void createOrder_missingApiUrl(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
 
         // when calling the paymentInit method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder()));
@@ -129,7 +168,7 @@ public class SharegroopHttpClientTest {
 @Test
     void createOrder_invalidApiUrl(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
 
         // when calling the paymentInit method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder()));
@@ -142,7 +181,7 @@ public class SharegroopHttpClientTest {
     @Test
     void verifyPrivateKey_nominal(){
         // given: Valid parameter  to create a request configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
 
         doReturn(MockUtils.verifyPrivateKeyValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
@@ -157,7 +196,7 @@ public class SharegroopHttpClientTest {
     @Test
     void verifyPrivateKey_missingApiUrl(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
 
         // when calling the paymentInit method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyPrivateKey(requestConfiguration));
@@ -166,7 +205,7 @@ public class SharegroopHttpClientTest {
     @Test
     void verifyPrivateKey_invalidApiUrl(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfigurationWithCollect(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
 
         // when calling the paymentInit method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyPrivateKey(requestConfiguration));

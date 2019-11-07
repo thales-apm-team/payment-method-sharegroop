@@ -28,45 +28,12 @@ public class MockUtils {
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
-     * Generate a valid {@link ContractConfiguration}.
-     */
-    // TODO: aContractconfiguration() suffit. surcharge si besoin de valeurs différentes.
-    public static ContractConfiguration aContractConfigurationWithCollect() {
-        Map<String, ContractProperty> contractProperties = new HashMap<>();
-
-        contractProperties.put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty("PrivateKey"));
-        contractProperties.put(Constants.ContractConfigurationKeys.PUBLIC_KEY, new ContractProperty("PublicKey"));
-
-        contractProperties.put(Constants.ContractConfigurationKeys.SECURE_3D, new ContractProperty("true"));
-        contractProperties.put(Constants.ContractConfigurationKeys.UX, new ContractProperty("collect"));
-
-        return new ContractConfiguration("Sharegroop", contractProperties);
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    /**
-     * Generate a valid {@link ContractConfiguration}.
-     */
-    // TODO: aContractconfiguration() suffit. surcharge si besoin de valeurs différentes.
-    public static ContractConfiguration aContractConfigurationWithPicking() {
-        Map<String, ContractProperty> contractProperties = new HashMap<>();
-
-        contractProperties.put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty("PrivateKey"));
-        contractProperties.put(Constants.ContractConfigurationKeys.PUBLIC_KEY, new ContractProperty("PublicKey"));
-
-        contractProperties.put(Constants.ContractConfigurationKeys.SECURE_3D, new ContractProperty("true"));
-        contractProperties.put(Constants.ContractConfigurationKeys.UX, new ContractProperty("picking"));
-
-        return new ContractConfiguration("Sharegroop", contractProperties);
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    /**
      * Generate a valid {@link PartnerConfiguration}.
      */
     public static PartnerConfiguration aPartnerConfiguration() {
         Map<String, String> partnerConfigurationMap = new HashMap<>();
 
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX, "https://api.sandbox.sharegroop.com");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "https://api.sharegroop.com");
+        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "https://api.sandbox.sharegroop.com");
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
 
@@ -79,8 +46,7 @@ public class MockUtils {
     public static PartnerConfiguration aInvalidPartnerConfiguration() {
         Map<String, String> partnerConfigurationMap = new HashMap<>();
 
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL_SANDBOX, "://api.sandbox.sharegroop.com");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "://api.sharegroop.com");
+        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "://api.sandbox.sharegroop.com");
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
 
@@ -131,45 +97,6 @@ public class MockUtils {
         return Order.fromJson(body);
     }
 
-    public static StringResponse createOrderValidResponse() {
-        String content = "{\"success\":true," +
-                "\"data\":{" +
-                "\"id\":\"ord_92aa7cfc-45df-4cf8-96f9-dd19b4bb3d09\"," +
-                "\"platformId\":\"pl_5ee79772-d68b-4e83-b334-b9b5c0349738\"," +
-                "\"amount\":10000," +
-                "\"amountConfirmed\":0," +
-                "\"delay\":8640," +
-                "\"secure3D\":true," +
-                "\"currency\":\"EUR\"," +
-                "\"locale\":\"en\"," +
-                "\"ux\":\"collect\"," +
-                "\"type\":\"direct\"," +
-                "\"status\":\"initiated\"," +
-                "\"createdAt\":1572886069520," +
-                "\"email\":\"captain@example.com\"," +
-                "\"firstName\":\"John\"," +
-                "\"lastName\":\"Carter\"," +
-                "\"trackId\":\"MY-INTERN-ID\"," +
-                "\"items\":[{" +
-                "\"id\":\"itm_e030779a-e943-46c4-95d8-0436bd678cd8\"," +
-                "\"name\":\"Product A\"," +
-                "\"amount\":2200," +
-                "\"quantity\":1," +
-                "\"trackId\":\"MY-ITEM-ID\"," +
-                "\"description\":\"Description A\"}," +
-                "{\"id\":\"itm_803cadd2-2bdd-4664-a926-571bd5c9314e\"," +
-                "\"name\":\"Product B\"," +
-                "\"amount\":5000," +
-                "\"quantity\":1," +
-                "\"description\":\"Description B\"}," +
-                "{\"id\":\"itm_3eedca1c-622b-4cd3-b0b5-64d45a22d3a4\"," +
-                "\"name\":\"Product C\"," +
-                "\"amount\":2800," +
-                "\"quantity\":1}]," +
-                "\"dueDate\":1573404469576}}";
-
-        return HttpTestUtils.mockStringResponse(200, "OK", content, null);
-    }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
      * Generate a valid {@link ContractParametersCheckRequest}.

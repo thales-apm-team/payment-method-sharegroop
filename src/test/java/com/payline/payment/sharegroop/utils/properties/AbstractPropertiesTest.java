@@ -55,25 +55,4 @@ class AbstractPropertiesTest {
         assertThrows( PluginException.class, NonExistingFilenameProperties::new );
     }
 
-    private static class TestProperties extends AbstractProperties {
-        TestProperties() {}
-
-        @Override
-        String getFilename() {
-            return "test.properties";
-        }
-    }
-
-    @Test
-    void getProperty_nominal(){
-        // given: the getFilename method implementation returns an existing filename
-        TestProperties testProperties = new TestProperties();
-
-        // when: getting properties, then: the values are correct
-        assertEquals("propvalue", testProperties.get("test.propKey"));
-        assertEquals("", testProperties.get("test.emptyValue"));
-        assertEquals("", testProperties.get("test.noEqual"));
-        assertNull(testProperties.get("test.nonExistingEntry"));
-    }
-
 }

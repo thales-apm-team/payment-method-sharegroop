@@ -9,6 +9,7 @@ import com.payline.pmapi.bean.configuration.request.ContractParametersCheckReque
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.bean.payment.Environment;
+import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -41,6 +42,21 @@ public class MockUtils {
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
+     * Generate a valid {@link PaymentFormLogoRequest}.
+     */
+    public static PaymentFormLogoRequest aPaymentFormLogoRequest(){
+        return PaymentFormLogoRequest.PaymentFormLogoRequestBuilder.aPaymentFormLogoRequest()
+                .withContractConfiguration( aContractConfiguration() )
+                .withEnvironment( anEnvironment() )
+                .withPartnerConfiguration( aPartnerConfiguration() )
+                .withLocale( Locale.getDefault() )
+                .build();
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    /* TODO: à supprimer. Cette méthode ne sera a priori utilisée que dans une seule classe de test. C'est un cas spécifique.
+    Donc inutile de créer une méthode de mock générique pour cela.
+     */
+    /**
      * Generate a invalid {@link PartnerConfiguration}.
      */
     public static PartnerConfiguration aInvalidPartnerConfiguration() {
@@ -56,6 +72,7 @@ public class MockUtils {
     /**
      * ------------------------------------------------------------------------------------------------------------------
      */
+    // TODO: si cette méthode n'est utilisée qu'à un seul endroit, elle n'a pas sa place ici. La classe MockUtils n'e doit pas être un fourre-tout :)
     public static StringResponse verifyPrivateKeyValidResponse() {
         return HttpTestUtils.mockStringResponse(400, "Bad Request", "{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}", null);
     }

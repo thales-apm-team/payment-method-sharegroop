@@ -159,8 +159,12 @@ public class SharegroopHttpClient {
      * @param requestConfiguration
      */
     public void verifyPartnerConfiguartionURL(RequestConfiguration requestConfiguration) {
-        if (requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL) == null) {
+        if (requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL)== null) {
             throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
+        }
+
+        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY) == null) {
+            throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
         }
 
         if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {

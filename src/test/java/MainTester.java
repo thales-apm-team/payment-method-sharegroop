@@ -19,8 +19,8 @@ public class MainTester {
     private static SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
     /**------------------------------------------------------------------------------------------------------------------*/
     public static void main(String[] args) throws IOException {
-        Data data = new Data();
-
+        Data dataCreateOrder = new Data();
+        Data dataVerifyOrder = new Data();
         try {
 
             RequestConfiguration requestConfiguration = new RequestConfiguration(initContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
@@ -30,14 +30,16 @@ public class MainTester {
 
 
             // Test : CreateOrder
-            data = sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder());
-            LOGGER.info("Order data : " + data);
+            dataCreateOrder = sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder());
+            LOGGER.info("Order dataCreateOrder : " + dataCreateOrder);
 
+            // Test : Verify
+            dataVerifyOrder = sharegroopHttpClient.verify(requestConfiguration, dataCreateOrder.getId());
+            LOGGER.info("Order dataVerifyOrder : " + dataVerifyOrder);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     private static PartnerConfiguration initPartnerConfiguration() throws IOException {

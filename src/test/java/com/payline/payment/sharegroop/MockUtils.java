@@ -59,7 +59,12 @@ public class MockUtils {
     public static StringResponse verifyPrivateKeyValidResponse() {
         return HttpTestUtils.mockStringResponse(400, "Bad Request", "{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}", null);
     }
-
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
+    public static String anOrderId() {
+        return "ord_92aa7cfc-45df-4cf8-96f9-dd19b4bb3d09";
+    }
     /**
      * ------------------------------------------------------------------------------------------------------------------
      */

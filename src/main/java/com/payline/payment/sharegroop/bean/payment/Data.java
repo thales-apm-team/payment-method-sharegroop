@@ -6,6 +6,64 @@ import com.google.gson.GsonBuilder;
 public class Data extends Order{
     private String id;
     private String platformId;
+    private String amountConfirmed;
+    private String delay;
+    private String type;
+    private String status;
+    private String createdAt;
+
+
+    public String getAmountConfirmed() {
+        return amountConfirmed;
+    }
+
+    public void setAmountConfirmed(String amountConfirmed) {
+        this.amountConfirmed = amountConfirmed;
+    }
+
+    public String getDelay() {
+        return delay;
+    }
+
+    public void setDelay(String delay) {
+        this.delay = delay;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    private String dueDate;
+
 
     public String getId() {
         return id;

@@ -13,6 +13,7 @@ public class Order {
     private String firstName;
     private String lastName;
 
+
     public Integer getAmount() {
         return amount;
     }

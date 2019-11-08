@@ -1,6 +1,6 @@
 package com.payline.payment.sharegroop.utils.http;
 
-import com.payline.payment.sharegroop.bean.SharegroopCreateOrdersResponse;
+import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
 import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.bean.payment.Order;
@@ -10,12 +10,12 @@ import com.payline.payment.sharegroop.utils.Constants;
 import com.payline.payment.sharegroop.utils.PluginUtils;
 import com.payline.payment.sharegroop.utils.properties.ConfigProperties;
 import com.payline.pmapi.bean.common.FailureCause;
-import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.logger.LogManager;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
@@ -86,7 +86,6 @@ public class SharegroopHttpClient {
                     .build();
         }
     }
-
     /**
      * ------------------------------------------------------------------------------------------------------------------
      */
@@ -162,8 +161,6 @@ public class SharegroopHttpClient {
         if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {
             throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
         }
-
-
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -241,10 +238,53 @@ public class SharegroopHttpClient {
         // Execute request
         StringResponse response = this.execute(httpPost);
 
-        return SharegroopCreateOrdersResponse.fromJson(response.getContent()).getData();
+        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Verify the transaction status after a buyer action
+     * @param requestConfiguration
+     * @param createdOrderId
+     * @return
+     */
+    public Data verify(RequestConfiguration requestConfiguration, String createdOrderId){
+        // Check if API url are present
+        verifyPartnerConfiguartionURL(requestConfiguration);
 
+        // Check if the createdOrderId is present
+        if (createdOrderId == null) {
+            throw new InvalidDataException("Missing an order Id");
+        }
 
+        String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL);
+
+        // Init request
+        URI uri;
+
+        try {
+            // Add the createOrderId to the url
+            uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER, createdOrderId));
+        } catch (URISyntaxException e) {
+            throw new InvalidDataException("Service URL is invalid", e);
+        }
+
+        HttpGet httpGet = new HttpGet(uri);
+
+        // Headers
+        String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaders.AUTHORIZATION, privateKeyHolder);
+        headers.put(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_VALUE);
+
+        for (Map.Entry<String, String> h : headers.entrySet()) {
+            httpGet.setHeader(h.getKey(), h.getValue());
+        }
+
+        // Execute request
+        StringResponse response = this.execute(httpGet);
+
+        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
 
 }

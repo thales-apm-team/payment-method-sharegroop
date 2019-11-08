@@ -6,7 +6,6 @@ import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
-import com.payline.pmapi.bean.payment.ContractConfiguration;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -176,8 +175,6 @@ public class SharegroopHttpClientTest {
     /**------------------------------------------------------------------------------------------------------------------*/
     // --- Test SharegroopHttpClient#VerifyConnection ---
     /**------------------------------------------------------------------------------------------------------------------*/
-
-
     @Test
     void verifyPrivateKey_nominal(){
         // given: Valid parameter  to create a request configuration
@@ -210,6 +207,88 @@ public class SharegroopHttpClientTest {
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyPrivateKey(requestConfiguration));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    // --- Test SharegroopHttpClient#Verify ---
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void verify_missingApiUrl(){
+        // given: the API base URL is missing from the partner configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
 
+        // when calling the paymentInit method, an exception is thrown
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verify(requestConfiguration,MockUtils.anOrderId()));
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void verify_invalidApiUrl(){
+        // given: the API base URL is missing from the partner configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
 
+        // when calling the paymentInit method, an exception is thrown
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verify(requestConfiguration,MockUtils.anOrderId()));
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void verify_invalidOrderId(){
+        // given: the API base URL is missing from the partner configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+
+        // when calling the paymentInit method, an exception is thrown
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verify(requestConfiguration,null));
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void verify_nominal() throws IOException {
+        // given: Valid parameter  to create a request configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration(MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
+
+        String content = "{\"success\":true," +
+                "\"data\":{" +
+                "\"currency\":\"EUR\"," +
+                "\"ux\":\"collect\"," +
+                "\"lastName\":\"Carter\"," +
+                "\"platformId\":\"pl_5ee79772-d68b-4e83-b334-b9b5c0349738\"," +
+                "\"trackId\":\"MY-INTERN-ID\"," +
+                "\"dueDate\":1573722504362," +
+                "\"locale\":\"en\"," +
+                "\"delay\":8640," +
+                "\"status\":\"initiated\"," +
+                "\"createdAt\":1573204104362," +
+                "\"email\":\"captain@example.com\"," +
+                "\"items\":[{" +
+                "\"name\":\"Product A\"," +
+                "\"description\":\"Description A\"," +
+                "\"amount\":2200," +
+                "\"id\":\"itm_240caf9b-8b61-4ace-9166-e9bde726ef93\"," +
+                "\"quantity\":1," +
+                "\"trackId\":\"MY-ITEM-ID" +
+                "\"}," +
+                "{\"name\":\"Product B\"," +
+                "\"description\":\"Description B\"," +
+                "\"amount\":5000," +
+                "\"id\":\"itm_1785a746-11a5-4e3c-9ec3-ae315792b6a9\"," +
+                "\"quantity\":1}," +
+                "{\"name\":\"Product C\"," +
+                "\"amount\":2800," +
+                "\"id\":\"itm_2de51368-cadd-45d2-b883-aae5c2e149fc\"," +
+                "\"quantity\":1}]," +
+                "\"firstName\":\"John\"," +
+                "\"amountConfirmed\":0," +
+                "\"amount\":10000," +
+                "\"id\":\"ord_3cd4744b-6f97-4ddb-936f-da1ebe3d19de\"," +
+                "\"type\":\"direct\"," +
+                "\"secure3D\":true" +
+                "}}";
+
+        StringResponse response = HttpTestUtils.mockStringResponse(200, "OK",content, null);
+
+        doReturn(response).when(sharegroopHttpClient).execute(any(HttpRequestBase.class));
+
+        // when : calling verifyConnection method
+        Data result = sharegroopHttpClient.verify(requestConfiguration, MockUtils.anOrderId());
+
+        // then
+        assertNotNull(result);
+
+        verify(http, never()).execute(any(HttpRequestBase.class));
+    }
 }

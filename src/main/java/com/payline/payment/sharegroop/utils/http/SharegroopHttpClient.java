@@ -44,6 +44,10 @@ public class SharegroopHttpClient {
     public static final String PATH_ORDER = "orders";
     public static final String REFUND = "refund";
 
+    // Exceptions messages
+    private static final String SERVICE_URL_ERROR = "Service URL is invalid";
+    private static final String MISSING_ORDER_ID = "Missing an order Id";
+
     /**
      * The number of time the client must retry to send the request if it doesn't obtain a response.
      */
@@ -183,7 +187,7 @@ public class SharegroopHttpClient {
         try {
             uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER));
         } catch (URISyntaxException e) {
-            throw new InvalidDataException("Service URL is invalid", e);
+            throw new InvalidDataException(SERVICE_URL_ERROR, e);
         }
 
         HttpPost httpPost = new HttpPost(uri);
@@ -216,7 +220,7 @@ public class SharegroopHttpClient {
         try {
             uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER));
         } catch (URISyntaxException e) {
-            throw new InvalidDataException("Service URL is invalid", e);
+            throw new InvalidDataException(SERVICE_URL_ERROR, e);
         }
 
         HttpPost httpPost = new HttpPost(uri);
@@ -248,13 +252,13 @@ public class SharegroopHttpClient {
      * @param createdOrderId
      * @return
      */
-    public Data verify(RequestConfiguration requestConfiguration, String createdOrderId){
+    public Data verifyOrder(RequestConfiguration requestConfiguration, String createdOrderId){
         // Check if API url are present
         verifyPartnerConfiguartionURL(requestConfiguration);
 
         // Check if the createdOrderId is present
         if (createdOrderId == null) {
-            throw new InvalidDataException("Missing an order Id");
+            throw new InvalidDataException(MISSING_ORDER_ID);
         }
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL);
@@ -266,7 +270,7 @@ public class SharegroopHttpClient {
             // Add the createOrderId to the url
             uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER, createdOrderId));
         } catch (URISyntaxException e) {
-            throw new InvalidDataException("Service URL is invalid", e);
+            throw new InvalidDataException(SERVICE_URL_ERROR, e);
         }
 
         HttpGet httpGet = new HttpGet(uri);
@@ -292,7 +296,7 @@ public class SharegroopHttpClient {
      * @param requestConfiguration
      * @return
      */
-    public Data refund(RequestConfiguration requestConfiguration, String createdOrderId){
+    public Data refundOrder(RequestConfiguration requestConfiguration, String createdOrderId){
 
         // Check if API url are present
         verifyPartnerConfiguartionURL(requestConfiguration);
@@ -306,7 +310,7 @@ public class SharegroopHttpClient {
             // Add the createOrderId to the url
             uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER, createdOrderId,REFUND));
         } catch (URISyntaxException e) {
-            throw new InvalidDataException("Service URL is invalid", e);
+            throw new InvalidDataException(SERVICE_URL_ERROR, e);
         }
 
         HttpPost httpPost = new HttpPost(uri);
@@ -326,4 +330,6 @@ public class SharegroopHttpClient {
 
         return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
     }
+    /**------------------------------------------------------------------------------------------------------------------*/
+
 }

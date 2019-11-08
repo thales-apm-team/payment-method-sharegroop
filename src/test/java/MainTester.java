@@ -36,11 +36,11 @@ public class MainTester {
             LOGGER.info("Data Create Order : " + dataCreateOrder);
 
             // Test : Verify
-            dataVerifyOrder = sharegroopHttpClient.verify(requestConfiguration, dataCreateOrder.getId());
+            dataVerifyOrder = sharegroopHttpClient.verifyOrder(requestConfiguration, dataCreateOrder.getId());
             LOGGER.info("Data Verify Order : " + dataVerifyOrder);
 
             // Test Refund
-            dataRefundOrder = sharegroopHttpClient.refund(requestConfiguration,"ord_7d4ca1a9-1c4e-47bd-9d1a-9330b605571d");
+            dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_7d4ca1a9-1c4e-47bd-9d1a-9330b605571d");
             LOGGER.info("Data Refund Order" + dataRefundOrder);
 
 

@@ -19,23 +19,30 @@ public class MainTester {
     private static SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
     /**------------------------------------------------------------------------------------------------------------------*/
     public static void main(String[] args) throws IOException {
-        Data dataCreateOrder = new Data();
-        Data dataVerifyOrder = new Data();
+        Data dataCreateOrder;
+        Data dataVerifyOrder;
+        Data dataRefundOrder;
+        Boolean privateKeyStatus;
+
         try {
 
             RequestConfiguration requestConfiguration = new RequestConfiguration(initContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
             // Test : VerifyPrivateKey
-             sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
-
-
+            privateKeyStatus = sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
+             LOGGER.info("Private Key Status : " + privateKeyStatus);
             // Test : CreateOrder
             dataCreateOrder = sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder());
-            LOGGER.info("Order dataCreateOrder : " + dataCreateOrder);
+            LOGGER.info("Data Create Order : " + dataCreateOrder);
 
             // Test : Verify
             dataVerifyOrder = sharegroopHttpClient.verify(requestConfiguration, dataCreateOrder.getId());
-            LOGGER.info("Order dataVerifyOrder : " + dataVerifyOrder);
+            LOGGER.info("Data Verify Order : " + dataVerifyOrder);
+
+            // Test Refund
+            dataRefundOrder = sharegroopHttpClient.refund(requestConfiguration,"ord_7d4ca1a9-1c4e-47bd-9d1a-9330b605571d");
+            LOGGER.info("Data Refund Order" + dataRefundOrder);
+
 
         } catch (Exception e) {
             e.printStackTrace();

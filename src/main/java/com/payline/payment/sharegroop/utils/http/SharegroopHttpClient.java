@@ -42,6 +42,7 @@ public class SharegroopHttpClient {
     // Paths
     public static final String PATH_VERSION = "v1";
     public static final String PATH_ORDER = "orders";
+    public static final String REFUND = "refund";
 
     /**
      * The number of time the client must retry to send the request if it doesn't obtain a response.
@@ -286,5 +287,43 @@ public class SharegroopHttpClient {
         return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Refund each participant
+     * @param requestConfiguration
+     * @return
+     */
+    public Data refund(RequestConfiguration requestConfiguration, String createdOrderId){
 
+        // Check if API url are present
+        verifyPartnerConfiguartionURL(requestConfiguration);
+
+        String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL);
+
+        // Init request
+        URI uri;
+
+        try {
+            // Add the createOrderId to the url
+            uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER, createdOrderId,REFUND));
+        } catch (URISyntaxException e) {
+            throw new InvalidDataException("Service URL is invalid", e);
+        }
+
+        HttpPost httpPost = new HttpPost(uri);
+
+        // Headers
+        String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaders.AUTHORIZATION, privateKeyHolder);
+        headers.put(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_VALUE);
+
+        for (Map.Entry<String, String> h : headers.entrySet()) {
+            httpPost.setHeader(h.getKey(), h.getValue());
+        }
+
+        // Execute request
+        StringResponse response = this.execute(httpPost);
+
+        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
+    }
 }

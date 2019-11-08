@@ -7,11 +7,54 @@ public class Data extends Order{
     private String id;
     private String platformId;
     private String amountConfirmed;
-    private String delay;
     private String type;
     private String status;
     private String createdAt;
+    private String tenantPlatform;
+    private String nbShares;
+    private String tenantId;
+    private String integration;
+    private String ecard;
 
+    public String getTenantPlatform() {
+        return tenantPlatform;
+    }
+
+    public void setTenantPlatform(String tenantPlatform) {
+        this.tenantPlatform = tenantPlatform;
+    }
+
+    public String getNbShares() {
+        return nbShares;
+    }
+
+    public void setNbShares(String nbShares) {
+        this.nbShares = nbShares;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getIntegration() {
+        return integration;
+    }
+
+    public void setIntegration(String integration) {
+        this.integration = integration;
+    }
+
+    public String getEcard() {
+        return ecard;
+    }
+
+    public void setEcard(String ecard) {
+        this.ecard = ecard;
+    }
 
     public String getAmountConfirmed() {
         return amountConfirmed;
@@ -19,14 +62,6 @@ public class Data extends Order{
 
     public void setAmountConfirmed(String amountConfirmed) {
         this.amountConfirmed = amountConfirmed;
-    }
-
-    public String getDelay() {
-        return delay;
-    }
-
-    public void setDelay(String delay) {
-        this.delay = delay;
     }
 
     public String getType() {

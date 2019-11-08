@@ -9,10 +9,12 @@ public class Order {
     private String currency;
     private String locale;
     private Boolean secure3D;
+    private String delay;
     private String email;
     private String firstName;
     private String lastName;
-
+    private String trackId;
+    private Item[] items;
 
     public Integer getAmount() {
         return amount;
@@ -90,12 +92,19 @@ public class Order {
         return items;
     }
 
+    public String getDelay() {
+        return delay;
+    }
+
+    public void setDelay(String delay) {
+        this.delay = delay;
+    }
+
     public void setItems(Item[] items) {
         this.items = items;
     }
 
-    private String trackId;
-    private Item[] items;
+
 
 
     public static Order fromJson(String json ){

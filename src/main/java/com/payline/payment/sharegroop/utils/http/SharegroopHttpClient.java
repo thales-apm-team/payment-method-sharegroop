@@ -302,7 +302,7 @@ public class SharegroopHttpClient {
      * @return
      */
     public Data refundOrder(RequestConfiguration requestConfiguration, String createdOrderId){
-        return Post(requestConfiguration,createdOrderId,REFUND);
+        return post(requestConfiguration,createdOrderId,REFUND);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -312,7 +312,7 @@ public class SharegroopHttpClient {
      * @return
      */
     public Data cancelOrder(RequestConfiguration requestConfiguration, String createdOrderId){
-        return Post(requestConfiguration,createdOrderId,CANCEL);
+        return post(requestConfiguration,createdOrderId,CANCEL);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -322,7 +322,7 @@ public class SharegroopHttpClient {
      * @param path
      * @return
      */
-    public Data Post(RequestConfiguration requestConfiguration, String createdOrderId, String path){
+    public Data post(RequestConfiguration requestConfiguration, String createdOrderId, String path){
         // Check if API url are present
         verifyPartnerConfiguartionURL(requestConfiguration);
 

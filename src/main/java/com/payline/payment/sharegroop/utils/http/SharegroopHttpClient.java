@@ -43,6 +43,7 @@ public class SharegroopHttpClient {
     public static final String PATH_VERSION = "v1";
     public static final String PATH_ORDER = "orders";
     public static final String REFUND = "refund";
+    public static final String CANCEL = "cancel";
 
     // Exceptions messages
     private static final String SERVICE_URL_ERROR = "Service URL is invalid";
@@ -301,7 +302,27 @@ public class SharegroopHttpClient {
      * @return
      */
     public Data refundOrder(RequestConfiguration requestConfiguration, String createdOrderId){
-
+        return Post(requestConfiguration,createdOrderId,REFUND);
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Cancel an incompleted transaction
+     * @param requestConfiguration
+     * @param createdOrderId
+     * @return
+     */
+    public Data cancelOrder(RequestConfiguration requestConfiguration, String createdOrderId){
+        return Post(requestConfiguration,createdOrderId,CANCEL);
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Manage an API call to cancel or refund a transaction
+     * @param requestConfiguration
+     * @param createdOrderId
+     * @param path
+     * @return
+     */
+    public Data Post(RequestConfiguration requestConfiguration, String createdOrderId, String path){
         // Check if API url are present
         verifyPartnerConfiguartionURL(requestConfiguration);
 
@@ -312,7 +333,7 @@ public class SharegroopHttpClient {
 
         try {
             // Add the createOrderId to the url
-            uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER, createdOrderId,REFUND));
+            uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER, createdOrderId,path));
         } catch (URISyntaxException e) {
             throw new InvalidDataException(SERVICE_URL_ERROR, e);
         }
@@ -334,6 +355,5 @@ public class SharegroopHttpClient {
 
         return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
 
 }

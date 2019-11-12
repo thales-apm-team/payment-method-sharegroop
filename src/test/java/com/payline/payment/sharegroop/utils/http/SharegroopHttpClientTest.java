@@ -380,33 +380,6 @@ public class SharegroopHttpClientTest {
     // --- Test SharegroopHttpClient#Refund ---
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test
-    void refundOrder_missingApiUrl(){
-        // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
-
-        // when calling the refund method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.refundOrder(requestConfiguration,MockUtils.anOrderId()));
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    @Test
-    void refundOrder_invalidApiUrl(){
-        // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
-
-        // when calling the refund method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.refundOrder(requestConfiguration,MockUtils.anOrderId()));
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    @Test
-    void refundOrder_invalidOrderId(){
-        // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
-
-        // when calling the refund method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.refundOrder(requestConfiguration,null));
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    @Test
     void refundOrder_nominal() throws IOException {
         // given: Valid parameter  to create a request configuration
         RequestConfiguration requestConfiguration = new RequestConfiguration(MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
@@ -426,8 +399,38 @@ public class SharegroopHttpClientTest {
         verify(http, never()).execute(any(HttpRequestBase.class));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    // --- Test SharegroopHttpClient#Cancel ---
+    /**------------------------------------------------------------------------------------------------------------------*/
     @Test
-    void refundOrder_invalidPrivateKey() {
+    void post_missingApiUrl(){
+        // given: the API base URL is missing from the partner configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
+
+        // when calling the refund method, an exception is thrown
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.Post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void post_invalidApiUrl(){
+        // given: the API base URL is missing from the partner configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+
+        // when calling the refund method, an exception is thrown
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.Post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void post_invalidOrderId(){
+        // given: the API base URL is missing from the partner configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+
+        // when calling the refund method, an exception is thrown
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.Post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
+    }
+
+    /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void post_invalidPrivateKey() {
 
         // given: the Private Key is invalid in the contractConfiguration
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
@@ -436,12 +439,12 @@ public class SharegroopHttpClientTest {
         RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
 
         // when calling the refundOrder method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.refundOrder(requestConfiguration, MockUtils.anOrderId()));
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.Post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
     }
 
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test
-    void refundOrder_missingPrivateKey() {
+    void post_missingPrivateKey() {
 
         // given: the Private Key is missing from the contractConfiguration
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
@@ -450,9 +453,27 @@ public class SharegroopHttpClientTest {
         RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
 
         // when calling the refundOrder method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.refundOrder(requestConfiguration, MockUtils.anOrderId()));
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.Post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    @Test
+    void cancelOrder_nominal() throws IOException {
+        // given: Valid parameter  to create a request configuration
+        RequestConfiguration requestConfiguration = new RequestConfiguration(MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
+        String content = "{\"success\":true,\"data\":{\"currency\":\"EUR\",\"ux\":\"collect\",\"ecard\":false,\"lastName\":\"Doe\",\"platformId\":\"pl_5ee79772-d68b-4e83-b334-b9b5c0349738\",\"delay\":8640,\"dueDate\":1574065897896,\"locale\":\"en\",\"status\":\"confirmed\",\"tenantId\":\"tn_359e7b91-71f7-4e24-bbb4-af750e959b3f\",\"trackId\":\"TRACK-1\",\"createdAt\":1573547497896,\"email\":\"martin@email.com\",\"integration\":\"front\",\"items\":[{\"name\":\"Product A\",\"description\":\"Description A\",\"amount\":12000,\"id\":\"itm_0d3d5178-f84f-4303-96e8-daf134efb27f\",\"quantity\":1,\"trackId\":\"TRACK-A\"}],\"firstName\":\"John\",\"tenantPlatform\":\"tn_359e7b91-71f7-4e24-bbb4-af750e959b3f#pl_5ee79772-d68b-4e83-b334-b9b5c0349738\",\"amountConfirmed\":4000,\"updatedAt\":1573547502945,\"nbShares\":3,\"amount\":12000,\"id\":\"ord_b1a50fa1-bf9c-4f3e-aa5c-0e3b24aaa79d\",\"secure3D\":true,\"type\":\"direct\"}}";
+        StringResponse response = HttpTestUtils.mockStringResponse(200, "OK",content, null);
+
+        doReturn(response).when(sharegroopHttpClient).execute(any(HttpRequestBase.class));
+
+        // when : calling refund method
+        Data result = sharegroopHttpClient.cancelOrder(requestConfiguration, MockUtils.anOrderId());
+
+        // then
+        assertNotNull(result);
+
+        verify(http, never()).execute(any(HttpRequestBase.class));
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
 
 }

@@ -3,7 +3,6 @@ import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
 import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.utils.Constants;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
-import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.logger.LogManager;
@@ -11,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class MainTester {
@@ -22,7 +20,9 @@ public class MainTester {
         Data dataCreateOrder;
         Data dataVerifyOrder;
         Data dataRefundOrder;
+        Data dataCancelOrder;
         Boolean privateKeyStatus;
+
 
         try {
 
@@ -40,24 +40,17 @@ public class MainTester {
             LOGGER.info("Data Verify Order : " + dataVerifyOrder);
 
             // Test Refund
-            dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_7d4ca1a9-1c4e-47bd-9d1a-9330b605571d");
-            LOGGER.info("Data Refund Order" + dataRefundOrder);
+           /* dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_5b86bc07-3ba6-4fde-a19c-807f95045415");
+            LOGGER.info("Data Refund Order" + dataRefundOrder);*/
+
+            // Test Cancel
+            dataCancelOrder = sharegroopHttpClient.cancelOrder(requestConfiguration,"ord_f2aa10bf-aa39-4431-b9a9-273c5e81a71b");
+            LOGGER.info("Data Cancel Order" + dataCancelOrder);
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    private static PartnerConfiguration initPartnerConfiguration() throws IOException {
-
-        Map<String, String> partnerConfigurationMap = new HashMap<>();
-
-
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "https://api.sandbox.sharegroop.com");
-        Map<String, String> sensitiveConfigurationMap = new HashMap<>();
-
-        return new PartnerConfiguration( partnerConfigurationMap, sensitiveConfigurationMap );
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     private static ContractConfiguration initContractConfiguration(){

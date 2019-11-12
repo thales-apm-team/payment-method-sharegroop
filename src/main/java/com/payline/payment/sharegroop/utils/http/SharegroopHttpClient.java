@@ -57,6 +57,9 @@ public class SharegroopHttpClient {
     private HttpClient client;
 
     // --- Singleton Holder pattern + initialization BEGIN
+    /* TODO: on l'a déjà vu ensemble, cette variable initialized ne sert à rien dans ces conditions
+    (on ne passe jamais 2 fois dans le constructeur). A supprimer.
+     */
     private AtomicBoolean initialized = new AtomicBoolean();
 
     /**
@@ -164,6 +167,7 @@ public class SharegroopHttpClient {
             throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
         }
 
+        // TODO: on aurait pu mettre un "OU" entre les 2 conditions ci-dessous pour s'éviter un copier-coller de message
         if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY) == null) {
             throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
         }
@@ -321,6 +325,9 @@ public class SharegroopHttpClient {
      * @param createdOrderId
      * @param path
      * @return
+     */
+    /* TODO: je pense qu'on a moyen de mutualiser pas mal de code entre les différents POST réalisés dans cette méthode (4)
+    Mais ce n'est pas prioritaire.
      */
     public Data post(RequestConfiguration requestConfiguration, String createdOrderId, String path){
         // Check if API url are present

@@ -16,6 +16,11 @@ public class Data extends Order{
     private String integration;
     private String ecard;
 
+    /* TODO: lorsqu'on a une contrainte de couverture de code pour les TU, ce n'est pas forcément judicieux
+    de créer les setters de façon systématique. Surtout que, dans le cas de ce genre d'objet, tu ne les utiliseras
+    normalement jamais... leur présence déteriore la couverture de code, alors qu'ils ne sont jamais appelés. C'est dommage !
+     */
+
     public String getTenantPlatform() {
         return tenantPlatform;
     }
@@ -117,6 +122,7 @@ public class Data extends Order{
     }
 
     public static Data fromJson(String json) {
+        // TODO: je ne vois aucun champ Date dans les attributs de cette classe : à quoi sert setDateFormat() ci-dessous ?
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
         return gson.fromJson(json, Data.class);
     }

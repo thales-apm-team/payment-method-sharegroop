@@ -25,6 +25,7 @@ public class SharegroopAPICallResponse {
     }
 
     public static SharegroopAPICallResponse fromJson(String json ){
+        // TODO: je ne vois aucune date dans les attributs Java de cette classe ou de Data : à quoi sert le setDateFormat() ci-dessous ?
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
         return gson.fromJson( json, SharegroopAPICallResponse.class );
     }

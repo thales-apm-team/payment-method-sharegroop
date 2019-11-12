@@ -16,6 +16,11 @@ public class Order {
     private String trackId;
     private Item[] items;
 
+    /* TODO: lorsqu'on a une contrainte de couverture de code pour les TU, ce n'est pas forcément judicieux
+    de créer les setters de façon systématique. Surtout que, dans le cas de ce genre d'objet, tu ne les utiliseras
+    normalement jamais... leur présence déteriore la couverture de code, alors qu'ils ne sont jamais appelés. C'est dommage !
+     */
+
     public Integer getAmount() {
         return amount;
     }

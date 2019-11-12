@@ -13,6 +13,7 @@ public class ShareGroopErrorResponse {
         return status;
     }
 
+    // TODO: typo "satus" au lieu de "status" ?
     public void setStatus(String satus) {
         this.status = satus;
     }
@@ -34,6 +35,7 @@ public class ShareGroopErrorResponse {
     }
 
     public static ShareGroopErrorResponse fromJson(String json ){
+        // TODO: je ne vois aucune date dans les attributs Java de cette classe : à quoi sert le setDateFormat() ci-dessous ?
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
         return gson.fromJson( json, ShareGroopErrorResponse.class );
     }

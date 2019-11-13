@@ -28,7 +28,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class SharegroopHttpClient {
@@ -57,16 +56,10 @@ public class SharegroopHttpClient {
     private HttpClient client;
 
     // --- Singleton Holder pattern + initialization BEGIN
-    /* TODO: on l'a déjà vu ensemble, cette variable initialized ne sert à rien dans ces conditions
-    (on ne passe jamais 2 fois dans le constructeur). A supprimer.
-     */
-    private AtomicBoolean initialized = new AtomicBoolean();
-
     /**
      * ------------------------------------------------------------------------------------------------------------------
      */
     SharegroopHttpClient() {
-        if (this.initialized.compareAndSet(false, true)) {
             int connectionRequestTimeout;
             int connectTimeout;
             int socketTimeout;
@@ -93,7 +86,7 @@ public class SharegroopHttpClient {
                     .useSystemProperties()
                     .setDefaultRequestConfig(requestConfig)
                     .build();
-        }
+
     }
     /**
      * ------------------------------------------------------------------------------------------------------------------
@@ -167,12 +160,8 @@ public class SharegroopHttpClient {
             throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
         }
 
-        // TODO: on aurait pu mettre un "OU" entre les 2 conditions ci-dessous pour s'éviter un copier-coller de message
-        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY) == null) {
-            throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
-        }
-
-        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {
+        if (requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY) == null ||
+                requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue() == null) {
             throw new InvalidDataException("Missing client private key from partner configuration (sentitive properties)");
         }
     }

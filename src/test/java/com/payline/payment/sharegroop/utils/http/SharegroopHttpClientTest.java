@@ -22,6 +22,7 @@ import org.mockito.Spy;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.payline.payment.sharegroop.utils.http.HttpTestUtils.mockHttpResponse;
 import static org.junit.jupiter.api.Assertions.*;
@@ -154,23 +155,29 @@ public class SharegroopHttpClientTest {
 
         // then
         assertNotNull(result);
-        // TODO: prendre l'habitude de vérifier que les mocks sont bien appliqués (en particulier dans les cas où on attend une erreur)
-        verify( http, never() ).execute( any(HttpRequestBase.class) );
+
+        verify( http, never() ).execute( any(HttpRequestBase.class));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test
     void createOrder_missingApiUrl(){
+        PartnerConfiguration partnerConfiguration = MockUtils.aPartnerConfiguration();
+
+
+        partnerConfiguration.getSensitiveProperties().put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "https://api.sandbox.sharegroop.com");
+
         // given: the API base URL is missing from the partner configuration
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
 
         // when calling the createOrder method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder()));
+
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test
     void createOrder_invalidApiUrl() {
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration(MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the createOrder method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.createOrder(requestConfiguration, MockUtils.anOrder()));
@@ -183,7 +190,7 @@ public class SharegroopHttpClientTest {
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
         contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty(null));
 
-        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the createOrder method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.createOrder(requestConfiguration, MockUtils.anOrder()));
@@ -197,7 +204,7 @@ public class SharegroopHttpClientTest {
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
         contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, null);
 
-        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the createOrder method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.createOrder(requestConfiguration, MockUtils.anOrder()));
@@ -209,8 +216,9 @@ public class SharegroopHttpClientTest {
     void verifyPrivateKey_nominal(){
         // given: Valid parameter  to create a request configuration
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
+        StringResponse verifyPrivateKeyValidResponse = HttpTestUtils.mockStringResponse(400, "Bad Request", "{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}", null);
 
-        doReturn(MockUtils.verifyPrivateKeyValidResponse()).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
+        doReturn(verifyPrivateKeyValidResponse).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
 
         // when : calling verifyPrivateKey method
         Boolean result = sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
@@ -231,7 +239,7 @@ public class SharegroopHttpClientTest {
     @Test
     void verifyPrivateKey_invalidApiUrl(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the verifyPrivateKey method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyPrivateKey(requestConfiguration));
@@ -244,7 +252,7 @@ public class SharegroopHttpClientTest {
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
         contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty(null));
 
-        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the verifyPrivateKey method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyPrivateKey(requestConfiguration));
@@ -258,7 +266,7 @@ public class SharegroopHttpClientTest {
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
         contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, null);
 
-        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the verifyPrivateKey method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyPrivateKey(requestConfiguration));
@@ -279,7 +287,7 @@ public class SharegroopHttpClientTest {
     @Test
     void verifyOrder_invalidApiUrl(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the verify method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyOrder(requestConfiguration,MockUtils.anOrderId()));
@@ -288,7 +296,7 @@ public class SharegroopHttpClientTest {
     @Test
     void verifyOrder_invalidOrderId(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the verify method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyOrder(requestConfiguration,null));
@@ -357,7 +365,7 @@ public class SharegroopHttpClientTest {
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
         contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty(null));
 
-        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the createOrder method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyOrder(requestConfiguration, MockUtils.anOrderId()));
@@ -371,7 +379,7 @@ public class SharegroopHttpClientTest {
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
         contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, null);
 
-        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the verifyOrder method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.verifyOrder(requestConfiguration, MockUtils.anOrderId()));
@@ -413,7 +421,7 @@ public class SharegroopHttpClientTest {
     @Test
     void post_invalidApiUrl(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the refund method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
@@ -422,7 +430,7 @@ public class SharegroopHttpClientTest {
     @Test
     void post_invalidOrderId(){
         // given: the API base URL is missing from the partner configuration
-        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the refund method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
@@ -436,7 +444,7 @@ public class SharegroopHttpClientTest {
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
         contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, new ContractProperty(null));
 
-        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the refundOrder method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
@@ -450,7 +458,7 @@ public class SharegroopHttpClientTest {
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration();
         contractConfiguration.getContractProperties().put(Constants.ContractConfigurationKeys.PRIVATE_KEY, null);
 
-        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aInvalidPartnerConfiguration());
+        RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the refundOrder method, an exception is thrown
         assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
@@ -475,5 +483,17 @@ public class SharegroopHttpClientTest {
         verify(http, never()).execute(any(HttpRequestBase.class));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Generate a invalid {@link PartnerConfiguration}.
+     */
+    public static PartnerConfiguration anInvalidPartnerConfiguration() {
+        Map<String, String> partnerConfigurationMap = new HashMap<>();
+
+        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "://api.sandbox.sharegroop.com");
+
+        Map<String, String> sensitiveConfigurationMap = new HashMap<>();
+
+        return new PartnerConfiguration(partnerConfigurationMap, sensitiveConfigurationMap);
+    }
 
 }

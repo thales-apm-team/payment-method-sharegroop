@@ -40,8 +40,8 @@ public class MainTester {
             LOGGER.info("Data Verify Order : " + dataVerifyOrder);
 
             // Test Refund
-           /* dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_5b86bc07-3ba6-4fde-a19c-807f95045415");
-            LOGGER.info("Data Refund Order" + dataRefundOrder);*/
+            dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_5b86bc07-3ba6-4fde-a19c-807f95045415");
+            LOGGER.info("Data Refund Order" + dataRefundOrder);
 
             // Test Cancel
             dataCancelOrder = sharegroopHttpClient.cancelOrder(requestConfiguration,"ord_f2aa10bf-aa39-4431-b9a9-273c5e81a71b");

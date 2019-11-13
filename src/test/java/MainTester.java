@@ -1,4 +1,5 @@
 import com.payline.payment.sharegroop.MockUtils;
+import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
 import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.utils.Constants;
@@ -17,10 +18,10 @@ public class MainTester {
     private static SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
     /**------------------------------------------------------------------------------------------------------------------*/
     public static void main(String[] args) throws IOException {
-        Data dataCreateOrder;
-        Data dataVerifyOrder;
-        Data dataRefundOrder;
-        Data dataCancelOrder;
+        SharegroopAPICallResponse dataCreateOrder;
+        SharegroopAPICallResponse dataVerifyOrder;
+        SharegroopAPICallResponse dataRefundOrder;
+        SharegroopAPICallResponse dataCancelOrder;
         Boolean privateKeyStatus;
 
         try {
@@ -30,21 +31,22 @@ public class MainTester {
             // Test : VerifyPrivateKey
             privateKeyStatus = sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
              LOGGER.info("Private Key Status : " + privateKeyStatus);
+
             // Test : CreateOrder
             dataCreateOrder = sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder());
-            LOGGER.info("Data Create Order : " + dataCreateOrder);
+            LOGGER.info("Data Create Order : " + dataCreateOrder.getSuccess() + " - " + dataCreateOrder.getData());
 
             // Test : Verify
-            dataVerifyOrder = sharegroopHttpClient.verifyOrder(requestConfiguration, dataCreateOrder.getId());
-            LOGGER.info("Data Verify Order : " + dataVerifyOrder);
+            dataVerifyOrder = sharegroopHttpClient.verifyOrder(requestConfiguration, dataCreateOrder.getData().getId());
+            LOGGER.info("Data Verify Order : " + dataVerifyOrder.getSuccess() + " - " + dataVerifyOrder.getData());
 
             // Test Refund
-            dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_450eeff7-ad33-40c3-a592-5bb93325c50d");
-            LOGGER.info("Data Refund Order" + dataRefundOrder);
+            dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_71878989-2592-48dc-a57b-dc3b5ab203ce");
+            LOGGER.info("Data Refund Order : " + dataRefundOrder.getSuccess() + " - " + dataRefundOrder.getData());
 
             // Test Cancel
-            /*dataCancelOrder = sharegroopHttpClient.cancelOrder(requestConfiguration,"ord_17b790c2-c624-4679-b882-9522829abe03");
-            LOGGER.info("Data Cancel Order" + dataCancelOrder);*/
+            dataCancelOrder = sharegroopHttpClient.cancelOrder(requestConfiguration,"ord_efdec8ba-aea9-4a41-ac20-1ede636cf8e5");
+            LOGGER.info("Data Cancel Order : " + dataCancelOrder.getSuccess() + " - " + dataCancelOrder.getData());
 
 
         } catch (Exception e) {

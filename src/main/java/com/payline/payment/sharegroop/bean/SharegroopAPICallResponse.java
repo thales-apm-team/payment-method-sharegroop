@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.payline.payment.sharegroop.bean.payment.Data;
 
-public class SharegroopAPICallResponse {
+public class SharegroopAPICallResponse extends SharegroopErrorResponse {
     private Boolean success;
     private Data data;
 

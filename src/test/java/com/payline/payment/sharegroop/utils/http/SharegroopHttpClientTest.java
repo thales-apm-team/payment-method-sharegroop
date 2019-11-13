@@ -1,6 +1,7 @@
 package com.payline.payment.sharegroop.utils.http;
 
 import com.payline.payment.sharegroop.MockUtils;
+import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
 import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
@@ -151,7 +152,7 @@ public class SharegroopHttpClientTest {
         doReturn(response).when( sharegroopHttpClient ).execute( any(HttpRequestBase.class ));
 
         // when : calling createOrder method
-        Data result = sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder());
+        SharegroopAPICallResponse result = sharegroopHttpClient.createOrder(requestConfiguration,MockUtils.anOrder());
 
         // then
         assertNotNull(result);
@@ -350,7 +351,7 @@ public class SharegroopHttpClientTest {
         doReturn(response).when(sharegroopHttpClient).execute(any(HttpRequestBase.class));
 
         // when : calling verify method
-        Data result = sharegroopHttpClient.verifyOrder(requestConfiguration, MockUtils.anOrderId());
+        SharegroopAPICallResponse result = sharegroopHttpClient.verifyOrder(requestConfiguration, MockUtils.anOrderId());
 
         // then
         assertNotNull(result);
@@ -399,7 +400,7 @@ public class SharegroopHttpClientTest {
         doReturn(response).when(sharegroopHttpClient).execute(any(HttpRequestBase.class));
 
         // when : calling refund method
-        Data result = sharegroopHttpClient.refundOrder(requestConfiguration, MockUtils.anOrderId());
+        SharegroopAPICallResponse result = sharegroopHttpClient.refundOrder(requestConfiguration, MockUtils.anOrderId());
 
         // then
         assertNotNull(result);
@@ -475,7 +476,7 @@ public class SharegroopHttpClientTest {
         doReturn(response).when(sharegroopHttpClient).execute(any(HttpRequestBase.class));
 
         // when : calling refund method
-        Data result = sharegroopHttpClient.cancelOrder(requestConfiguration, MockUtils.anOrderId());
+        SharegroopAPICallResponse result = sharegroopHttpClient.cancelOrder(requestConfiguration, MockUtils.anOrderId());
 
         // then
         assertNotNull(result);

@@ -2,7 +2,6 @@ package com.payline.payment.sharegroop.utils.http;
 
 import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
-import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.bean.payment.Order;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
@@ -172,7 +171,7 @@ public class SharegroopHttpClient {
      * @param createdOrderId
      * @return
      */
-    public Data verifyOrder(RequestConfiguration requestConfiguration, String createdOrderId){
+    public SharegroopAPICallResponse verifyOrder(RequestConfiguration requestConfiguration, String createdOrderId){
         // Check if API url are present
         verifyPartnerConfiguartionURL(requestConfiguration);
 
@@ -208,7 +207,7 @@ public class SharegroopHttpClient {
         // Execute request
         StringResponse response = this.execute(httpGet);
 
-        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
+        return SharegroopAPICallResponse.fromJson(response.getContent());
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -219,6 +218,7 @@ public class SharegroopHttpClient {
      */
     public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
         StringResponse response = post(requestConfiguration,"","",null);
+
         return response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}");
     }
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -228,9 +228,10 @@ public class SharegroopHttpClient {
      * @param requestConfiguration
      * @return
      */
-    public Data createOrder(RequestConfiguration requestConfiguration, Order order) {
+    public SharegroopAPICallResponse createOrder(RequestConfiguration requestConfiguration, Order order) {
         StringResponse response = post(requestConfiguration,"","",order.toString());
-        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
+
+        return SharegroopAPICallResponse.fromJson(response.getContent());
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -238,9 +239,9 @@ public class SharegroopHttpClient {
      * @param requestConfiguration
      * @return
      */
-    public Data refundOrder(RequestConfiguration requestConfiguration, String createdOrderId){
+    public SharegroopAPICallResponse refundOrder(RequestConfiguration requestConfiguration, String createdOrderId){
         StringResponse response = post(requestConfiguration,createdOrderId,REFUND,null);
-        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
+        return SharegroopAPICallResponse.fromJson(response.getContent());
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -249,9 +250,9 @@ public class SharegroopHttpClient {
      * @param createdOrderId
      * @return
      */
-    public Data cancelOrder(RequestConfiguration requestConfiguration, String createdOrderId){
+    public SharegroopAPICallResponse cancelOrder(RequestConfiguration requestConfiguration, String createdOrderId){
         StringResponse response = post(requestConfiguration,createdOrderId,CANCEL,null);
-        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
+        return SharegroopAPICallResponse.fromJson(response.getContent());
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**

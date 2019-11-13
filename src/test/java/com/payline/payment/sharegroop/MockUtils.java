@@ -2,8 +2,6 @@ package com.payline.payment.sharegroop;
 
 import com.payline.payment.sharegroop.bean.payment.Order;
 import com.payline.payment.sharegroop.utils.Constants;
-import com.payline.payment.sharegroop.utils.http.HttpTestUtils;
-import com.payline.payment.sharegroop.utils.http.StringResponse;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.payment.ContractConfiguration;

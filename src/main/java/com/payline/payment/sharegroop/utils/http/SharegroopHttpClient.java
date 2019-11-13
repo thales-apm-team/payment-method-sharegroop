@@ -218,7 +218,7 @@ public class SharegroopHttpClient {
      * @return
      */
     public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
-        StringResponse response = post(requestConfiguration,"","","");
+        StringResponse response = post(requestConfiguration,"","",null);
         return response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}");
     }
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -239,7 +239,7 @@ public class SharegroopHttpClient {
      * @return
      */
     public Data refundOrder(RequestConfiguration requestConfiguration, String createdOrderId){
-        StringResponse response = post(requestConfiguration,createdOrderId,REFUND,"");
+        StringResponse response = post(requestConfiguration,createdOrderId,REFUND,null);
         return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
     }
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -250,7 +250,7 @@ public class SharegroopHttpClient {
      * @return
      */
     public Data cancelOrder(RequestConfiguration requestConfiguration, String createdOrderId){
-        StringResponse response = post(requestConfiguration,createdOrderId,CANCEL,"");
+        StringResponse response = post(requestConfiguration,createdOrderId,CANCEL,null);
         return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
     }
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -290,7 +290,7 @@ public class SharegroopHttpClient {
         }
 
         // Body
-        if(!body.isEmpty()) {
+        if(body != null) {
             httpPost.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
         }
 

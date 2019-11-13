@@ -23,7 +23,6 @@ public class MainTester {
         Data dataCancelOrder;
         Boolean privateKeyStatus;
 
-
         try {
 
             RequestConfiguration requestConfiguration = new RequestConfiguration(initContractConfiguration(), MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());

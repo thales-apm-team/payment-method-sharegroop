@@ -40,12 +40,12 @@ public class MainTester {
             LOGGER.info("Data Verify Order : " + dataVerifyOrder);
 
             // Test Refund
-            dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_5b86bc07-3ba6-4fde-a19c-807f95045415");
+            dataRefundOrder = sharegroopHttpClient.refundOrder(requestConfiguration,"ord_450eeff7-ad33-40c3-a592-5bb93325c50d");
             LOGGER.info("Data Refund Order" + dataRefundOrder);
 
             // Test Cancel
-            dataCancelOrder = sharegroopHttpClient.cancelOrder(requestConfiguration,"ord_f2aa10bf-aa39-4431-b9a9-273c5e81a71b");
-            LOGGER.info("Data Cancel Order" + dataCancelOrder);
+            /*dataCancelOrder = sharegroopHttpClient.cancelOrder(requestConfiguration,"ord_17b790c2-c624-4679-b882-9522829abe03");
+            LOGGER.info("Data Cancel Order" + dataCancelOrder);*/
 
 
         } catch (Exception e) {

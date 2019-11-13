@@ -415,7 +415,7 @@ public class SharegroopHttpClientTest {
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), new PartnerConfiguration( new HashMap<>(), new HashMap<>() ) );
 
         // when calling the refund method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL",""));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test
@@ -424,7 +424,7 @@ public class SharegroopHttpClientTest {
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the refund method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL",""));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test
@@ -433,7 +433,7 @@ public class SharegroopHttpClientTest {
         RequestConfiguration requestConfiguration = new RequestConfiguration( MockUtils.aContractConfiguration(), MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the refund method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL",""));
     }
 
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -447,7 +447,7 @@ public class SharegroopHttpClientTest {
         RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the refundOrder method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL",""));
     }
 
     /**------------------------------------------------------------------------------------------------------------------*/
@@ -461,7 +461,7 @@ public class SharegroopHttpClientTest {
         RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), anInvalidPartnerConfiguration());
 
         // when calling the refundOrder method, an exception is thrown
-        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL"));
+        assertThrows(InvalidDataException.class, () -> sharegroopHttpClient.post(requestConfiguration, MockUtils.anOrderId(),"CANCEL",""));
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     @Test

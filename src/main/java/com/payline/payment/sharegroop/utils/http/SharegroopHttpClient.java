@@ -167,84 +167,6 @@ public class SharegroopHttpClient {
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
-     * Verify if the private key is valid
-     *
-     * @param requestConfiguration
-     * @return
-     */
-    public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
-
-        // Check if API url are present
-        verifyPartnerConfiguartionURL(requestConfiguration);
-
-        String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL);
-
-        // Init request
-        URI uri;
-
-        try {
-            uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER));
-        } catch (URISyntaxException e) {
-            throw new InvalidDataException(SERVICE_URL_ERROR, e);
-        }
-
-        HttpPost httpPost = new HttpPost(uri);
-
-        String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
-
-        httpPost.setHeader(HttpHeaders.AUTHORIZATION, privateKeyHolder);
-
-        // Execute request
-        StringResponse response = this.execute(httpPost);
-
-        return response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}");
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    /**
-     * Create a transaction
-     *
-     * @param requestConfiguration
-     * @return
-     */
-    public Data createOrder(RequestConfiguration requestConfiguration, Order order) {
-        // Check if API url are present
-        verifyPartnerConfiguartionURL(requestConfiguration);
-
-        String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL);
-
-        // Init request
-        URI uri;
-
-        try {
-            uri = new URI(baseUrl + createPath(PATH_VERSION, PATH_ORDER));
-        } catch (URISyntaxException e) {
-            throw new InvalidDataException(SERVICE_URL_ERROR, e);
-        }
-
-        HttpPost httpPost = new HttpPost(uri);
-
-        // Headers
-        String privateKeyHolder = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PRIVATE_KEY).getValue();
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaders.AUTHORIZATION, privateKeyHolder);
-        headers.put(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_VALUE);
-
-        for (Map.Entry<String, String> h : headers.entrySet()) {
-            httpPost.setHeader(h.getKey(), h.getValue());
-        }
-
-        // Body
-        String jsonBody = order.toString();
-        httpPost.setEntity( new StringEntity( jsonBody, StandardCharsets.UTF_8 ));
-
-        // Execute request
-        StringResponse response = this.execute(httpPost);
-
-        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    /**
      * Verify the transaction status after a buyer action
      * @param requestConfiguration
      * @param createdOrderId
@@ -290,12 +212,35 @@ public class SharegroopHttpClient {
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
+     * Verify if the private key is valid
+     *
+     * @param requestConfiguration
+     * @return
+     */
+    public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
+        StringResponse response = post(requestConfiguration,"","","");
+        return response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}");
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Create a transaction
+     *
+     * @param requestConfiguration
+     * @return
+     */
+    public Data createOrder(RequestConfiguration requestConfiguration, Order order) {
+        StringResponse response = post(requestConfiguration,"","",order.toString());
+        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
+    }
+    /**------------------------------------------------------------------------------------------------------------------*/
+    /**
      * Refund each participant
      * @param requestConfiguration
      * @return
      */
     public Data refundOrder(RequestConfiguration requestConfiguration, String createdOrderId){
-        return post(requestConfiguration,createdOrderId,REFUND);
+        StringResponse response = post(requestConfiguration,createdOrderId,REFUND,"");
+        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -305,20 +250,18 @@ public class SharegroopHttpClient {
      * @return
      */
     public Data cancelOrder(RequestConfiguration requestConfiguration, String createdOrderId){
-        return post(requestConfiguration,createdOrderId,CANCEL);
+        StringResponse response = post(requestConfiguration,createdOrderId,CANCEL,"");
+        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
-     * Manage an API call to cancel or refund a transaction
+     * Manage Post API call
      * @param requestConfiguration
      * @param createdOrderId
      * @param path
      * @return
      */
-    /* TODO: je pense qu'on a moyen de mutualiser pas mal de code entre les différents POST réalisés dans cette méthode (4)
-    Mais ce n'est pas prioritaire.
-     */
-    public Data post(RequestConfiguration requestConfiguration, String createdOrderId, String path){
+    public StringResponse post(RequestConfiguration requestConfiguration, String createdOrderId, String path, String body){
         // Check if API url are present
         verifyPartnerConfiguartionURL(requestConfiguration);
 
@@ -346,10 +289,13 @@ public class SharegroopHttpClient {
             httpPost.setHeader(h.getKey(), h.getValue());
         }
 
-        // Execute request
-        StringResponse response = this.execute(httpPost);
+        // Body
+        if(!body.isEmpty()) {
+            httpPost.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
+        }
 
-        return SharegroopAPICallResponse.fromJson(response.getContent()).getData();
+        // Execute request
+        return this.execute(httpPost);
     }
 
 }

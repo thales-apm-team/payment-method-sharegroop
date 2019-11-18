@@ -1,25 +1,33 @@
 package com.payline.payment.sharegroop.service.impl;
 
 import com.payline.payment.sharegroop.service.LogoPaymentFormConfigurationService;
+import com.payline.payment.sharegroop.utils.i18n.I18nService;
+import com.payline.pmapi.bean.paymentform.bean.form.NoFieldForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
+import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseSpecific;
+
+import java.util.Locale;
 
 public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigurationService {
+    private I18nService i18n = I18nService.getInstance();
+
+    private static final String PAYMENT_BUTTON_TEXT = "payment.form.config.button.text";
+    private static final String PAYMENT_BUTTON_DESC = "payment.form.config.description";
+
     @Override
     public PaymentFormConfigurationResponse getPaymentFormConfiguration(PaymentFormConfigurationRequest paymentFormConfigurationRequest) {
+        Locale locale = paymentFormConfigurationRequest.getLocale();
 
-        /* TODO: c'est probablement ici qu'on va construire le JS
-        (insérer les bonnes valeurs dedans, à partir du contenu de PaymentFormConfigurationRequest).
-        Et on va le renvoyer à Payline en lieu de place du formulaire de paiement
-        -> voir l'exemple de Google-Pay
+        NoFieldForm form = NoFieldForm.NoFieldFormBuilder.aNoFieldForm()
+                .withButtonText(i18n.getMessage(PAYMENT_BUTTON_TEXT, locale))
+                .withDescription(i18n.getMessage(PAYMENT_BUTTON_DESC, locale))
+                .withDisplayButton(true)
+                .build();
 
-        Si on peut initialiser l'ordre directement dans le JS de paiement (sans avoir à faire un appel HTTP préalable),
-        c'est peut-être le mieux. Ca évite de générer un ordre pour rien si, au final, l'acheteur ne va pas au bout du
-        process de paiement.
-        -> Valider la faisabilité avec le script JS en local !
-        (Auquel cas, la méthode createOrder dans le client HTTP ne sert à rien... :/)
-         */
-
-        return null;
+        return PaymentFormConfigurationResponseSpecific.PaymentFormConfigurationResponseSpecificBuilder
+                .aPaymentFormConfigurationResponseSpecific()
+                .withPaymentForm(form)
+                .build();
     }
 }

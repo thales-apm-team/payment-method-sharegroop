@@ -34,11 +34,11 @@ import java.util.Map;
 
 
 public class PaymentServiceImpl implements PaymentService {
-    private static final String DATA = "data"; // todo voir avec monext
+    private static final String DATA = "data";
 
     private static final String SHAREGROOP_URL = "https://widget.sandbox.sharegroop.com/widget.js";
-    private static final String DIV_ID = ""; // todo je crois qu'il faut demander a payline cet id... au pire on peu le metre dans les partner config :)
-    private static final String CALLBACK_NAME = ""; // todo pareil
+    private static final String DIV_ID = "#sharegroopPaymentForm";
+    private static final String CALLBACK_NAME = "paylineProcessPaymentCallback";
     private static final String CONTEXT_DATA_STEP = "STEP";
     private static final String CONTEXT_DATA_ORDER = "ORDER";
     private static final String CONTEXT_DATA_EMAIL = "EMAIL";
@@ -269,7 +269,7 @@ public class PaymentServiceImpl implements PaymentService {
                 "\"orderId\": \"" + ORDER_ID + "\",\n" +
                 "\"locale\": \"" + LOCALE + "\",\n" +
                 "\"events\": {\n" +
-                "  \"onReady\": " + CALLBACK + "\n" +
+                "  \"onReady\": function () {  "+CALLBACK+"(); }," +
                 "}\n" +
                 "});";
 

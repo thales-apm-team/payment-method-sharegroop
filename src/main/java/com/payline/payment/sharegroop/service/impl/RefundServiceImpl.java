@@ -27,7 +27,7 @@ public class RefundServiceImpl implements RefundService {
             SharegroopAPICallResponse sharegroopAPICallResponse = httpClient.refundOrder(requestConfiguration, refundRequest.getTransactionId());
 
             if (sharegroopAPICallResponse.getSuccess()) {
-                if (sharegroopAPICallResponse.getData().getStatus() == "refunded") {
+                if ("refunded".equalsIgnoreCase(sharegroopAPICallResponse.getData().getStatus())) {
                     return createResponseSuccess(sharegroopAPICallResponse);
                 }
             }

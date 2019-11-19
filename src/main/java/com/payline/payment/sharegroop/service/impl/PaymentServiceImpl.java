@@ -37,7 +37,7 @@ public class PaymentServiceImpl implements PaymentService {
     private static final String DATA = "data";
 
     private static final String SHAREGROOP_URL = "https://widget.sandbox.sharegroop.com/widget.js";
-    private static final String DIV_ID = "#sharegroopPaymentForm";
+    private static final String DIV_ID = "sharegroopPaymentForm";
     private static final String CALLBACK_NAME = "paylineProcessPaymentCallback";
     private static final String CONTEXT_DATA_STEP = "STEP";
     private static final String CONTEXT_DATA_ORDER = "ORDER";
@@ -118,13 +118,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     private String getStepOneScript(PaymentRequest request) {
         String templateScript = "ShareGroop.initCaptain({\n" +
-                "        \"selector\": \"" + SELECTOR + "\",\n" +
+                "        \"selector\": \"#" + SELECTOR + "\",\n" +
                 "        \"publicKey\": \"" + PUBLIC_KEY + "\",\n" +
                 "        \"locale\": \"" + LOCALE + "\",\n" +
                 "        \"currency\": \"" + CURRENCY + "\",\n" +
                 "        \"order\": {\n" +
                 "           \"email\": \"" + EMAIL + "\",\n" +
-                "           \"ux\": \"" + UX + "\"" +
+                "           \"ux\": \"" + UX + ",\"" +
                 "           \"firstName\": \"" + FIRSTNAME + "\",\n" +
                 "           \"lastName\": \"" + LASTNAME + "\",\n" +
                 "           \"trackId\": \"" + TRACK_ID + "\",\n" +
@@ -132,9 +132,9 @@ public class PaymentServiceImpl implements PaymentService {
                 "           \"items\": [ " + ITEMS + " ]\n" +
                 "        },\n" +
                 "        \"events\": {\n" +
-                "          \"onValidated\": function(data) { " + CALLBACK + "(data); }\n" +
-                "          \"onInvalid\": function () {     "+CALLBACK+"(); }," +
-                "          \"onError\": function () {     "+CALLBACK+"(); }," +
+                "          \"onValidated\": function(data) { " + CALLBACK + "(data); },\n" +
+                "          \"onInvalid\": function () {     "+CALLBACK+"(); },\n" +
+                "          \"onError\": function () {     "+CALLBACK+"(); }\n" +
                 "        }\n" +
                 "    }).mount();";
 
@@ -161,12 +161,14 @@ public class PaymentServiceImpl implements PaymentService {
         return templateScript
                 .replace(SELECTOR, DIV_ID)
                 .replace(PUBLIC_KEY, request.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PUBLIC_KEY).getValue())
-                .replace(LOCALE, request.getLocale().getCountry())
+                .replace(LOCALE, request.getLocale().getLanguage())
                 .replace(CURRENCY, request.getAmount().getCurrency().getCurrencyCode())
                 .replace(AMOUNT, request.getAmount().getAmountInSmallestUnit().toString())
                 .replace(EMAIL, request.getBuyer().getEmail())
                 .replace(FIRSTNAME, request.getBuyer().getFullName().getFirstName())
-                .replace(TRACK_ID, request.getBuyer().getFullName().getLastName())
+                .replace(LASTNAME, request.getBuyer().getFullName().getLastName())
+                .replace(TRACK_ID, request.getTransactionId())
+                .replace(UX, request.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.UX).getValue())
                 .replace(ITEMS, items)
                 .replace(CALLBACK, CALLBACK_NAME);
     }
@@ -264,7 +266,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private String getStepThreeScript(PaymentRequest request, String partnerTransactionId) {
         String templateScript = "ShareGroop.initLink({\n" +
-                "\"selector\": \"" + SELECTOR + "\",\n" +
+                "\"selector\": \"#" + SELECTOR + "\",\n" +
                 "\"publicKey\": \"" + PUBLIC_KEY + "\",\n" +
                 "\"orderId\": \"" + ORDER_ID + "\",\n" +
                 "\"locale\": \"" + LOCALE + "\",\n" +

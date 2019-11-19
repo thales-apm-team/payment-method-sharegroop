@@ -61,8 +61,7 @@ public class Order {
     }
 
     public static Order fromJson(String json ){
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson( json, Order.class );
+        return new GsonBuilder().create().fromJson( json, Order.class );
     }
 
     @Override

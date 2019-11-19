@@ -35,7 +35,6 @@ public class Item {
     }
 
     public static Item fromJson(String json ){
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson( json, Item.class );
+        return new GsonBuilder().create().fromJson( json, Item.class );
     }
 }

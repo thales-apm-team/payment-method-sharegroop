@@ -54,7 +54,6 @@ public class Data extends Order{
         return platformId;
     }
     public static Data fromJson(String json) {
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson(json, Data.class);
+        return new GsonBuilder().create().fromJson(json, Data.class);
     }
 }

@@ -219,6 +219,10 @@ public class SharegroopHttpClient {
     public Boolean verifyPrivateKey(RequestConfiguration requestConfiguration) {
         StringResponse response = post(requestConfiguration,"","",null);
 
+        if (response.getContent() == null){
+            LOGGER.error("No response body");
+            return false;
+        }
         return response.getContent().contains("{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}");
     }
     /**------------------------------------------------------------------------------------------------------------------*/

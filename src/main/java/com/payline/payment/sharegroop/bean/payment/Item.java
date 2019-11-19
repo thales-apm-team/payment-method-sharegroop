@@ -14,10 +14,6 @@ public class Item {
         return trackId;
     }
 
-    public void setTrackId(String trackId) {
-        this.trackId = trackId;
-    }
-
     public String getName() {
         return name;
     }
@@ -30,28 +26,15 @@ public class Item {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Integer getAmount() {
         return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
     }
 
     public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
     public static Item fromJson(String json ){
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
-        return gson.fromJson( json, Item.class );
+        return new GsonBuilder().create().fromJson( json, Item.class );
     }
 }

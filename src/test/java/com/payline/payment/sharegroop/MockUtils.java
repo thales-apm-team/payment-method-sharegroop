@@ -2,8 +2,6 @@ package com.payline.payment.sharegroop;
 
 import com.payline.payment.sharegroop.bean.payment.Order;
 import com.payline.payment.sharegroop.utils.Constants;
-import com.payline.payment.sharegroop.utils.http.HttpTestUtils;
-import com.payline.payment.sharegroop.utils.http.StringResponse;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
@@ -52,30 +50,7 @@ public class MockUtils {
                 .withLocale( Locale.getDefault() )
                 .build();
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    /* TODO: à supprimer. Cette méthode ne sera a priori utilisée que dans une seule classe de test. C'est un cas spécifique.
-    Donc inutile de créer une méthode de mock générique pour cela.
-     */
-    /**
-     * Generate a invalid {@link PartnerConfiguration}.
-     */
-    public static PartnerConfiguration aInvalidPartnerConfiguration() {
-        Map<String, String> partnerConfigurationMap = new HashMap<>();
 
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "://api.sandbox.sharegroop.com");
-
-        Map<String, String> sensitiveConfigurationMap = new HashMap<>();
-
-        return new PartnerConfiguration(partnerConfigurationMap, sensitiveConfigurationMap);
-    }
-
-    /**
-     * ------------------------------------------------------------------------------------------------------------------
-     */
-    // TODO: si cette méthode n'est utilisée qu'à un seul endroit, elle n'a pas sa place ici. La classe MockUtils n'e doit pas être un fourre-tout :)
-    public static StringResponse verifyPrivateKeyValidResponse() {
-        return HttpTestUtils.mockStringResponse(400, "Bad Request", "{\"status\":400,\"success\":false,\"errors\":[\"should be object\"]}", null);
-    }
     /**
      * ------------------------------------------------------------------------------------------------------------------
      */

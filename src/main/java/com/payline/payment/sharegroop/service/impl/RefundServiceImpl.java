@@ -18,10 +18,11 @@ public class RefundServiceImpl implements RefundService {
     private static final Logger LOGGER = LogManager.getLogger(RefundServiceImpl.class);
     private SharegroopHttpClient httpClient = SharegroopHttpClient.getInstance();
 
-    /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
     @Override
     public RefundResponse refundRequest(RefundRequest refundRequest) {
-
         try {
             RequestConfiguration requestConfiguration = new RequestConfiguration(refundRequest.getContractConfiguration(), refundRequest.getEnvironment(), refundRequest.getPartnerConfiguration());
             SharegroopAPICallResponse sharegroopAPICallResponse = httpClient.refundOrder(requestConfiguration, refundRequest.getTransactionId());
@@ -31,40 +32,50 @@ public class RefundServiceImpl implements RefundService {
                     return createResponseSuccess(sharegroopAPICallResponse);
                 }
             }
-
             return createResponseFailure(sharegroopAPICallResponse);
 
         } catch (PluginException e) {
-           return e.toRefundResponseFailureBuilder().build();
+            return e.toRefundResponseFailureBuilder().build();
         } catch (RuntimeException e) {
             LOGGER.error("Unexpected plugin error", e);
-           return RefundResponseFailure.RefundResponseFailureBuilder.aRefundResponseFailure()
+            return RefundResponseFailure.RefundResponseFailureBuilder.aRefundResponseFailure()
                     .withErrorCode(PluginException.runtimeErrorCode(e))
                     .withFailureCause(FailureCause.INTERNAL_ERROR)
                     .build();
         }
     }
 
-    /**------------------------------------------------------------------------------------------------------------------*/
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
     @Override
     public boolean canMultiple() {
-        return true;
+        return false;
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
     @Override
     public boolean canPartial() {
-        return true;
+        return false;
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
     private RefundResponseFailure createResponseFailure(SharegroopAPICallResponse response) {
         return RefundResponseFailure.RefundResponseFailureBuilder
                 .aRefundResponseFailure()
                 .withPartnerTransactionId(response.getData().getId())
                 .withErrorCode(response.getStatus())
-                .withFailureCause(FailureCause.PARTNER_UNKNOWN_ERROR)
+                .withFailureCause(FailureCause.INVALID_DATA)
                 .build();
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------
+     */
     private RefundResponseSuccess createResponseSuccess(SharegroopAPICallResponse response) {
         return RefundResponseSuccess.RefundResponseSuccessBuilder
                 .aRefundResponseSuccess()

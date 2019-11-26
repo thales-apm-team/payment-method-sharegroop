@@ -9,10 +9,6 @@ import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.ListBoxParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
-import com.payline.pmapi.bean.payment.ContractConfiguration;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +35,7 @@ public class ConfigurationServiceImplTest {
     private ConfigurationServiceImpl service;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         MockitoAnnotations.initMocks(this);
     }
     /**------------------------------------------------------------------------------------------------------------------*/

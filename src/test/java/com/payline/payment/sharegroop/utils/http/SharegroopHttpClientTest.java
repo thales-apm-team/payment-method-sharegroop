@@ -3,7 +3,6 @@ package com.payline.payment.sharegroop.utils.http;
 import com.payline.payment.sharegroop.MockUtils;
 import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
-import com.payline.payment.sharegroop.bean.payment.Data;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.payment.sharegroop.utils.Constants;
@@ -39,7 +38,7 @@ public class SharegroopHttpClientTest {
 
     @BeforeEach
     void setup() throws NoSuchFieldException {
-
+// todo verifier les Mock
         // Init tested instance and inject mocks
         sharegroopHttpClient = new SharegroopHttpClient();
         MockitoAnnotations.initMocks(this);

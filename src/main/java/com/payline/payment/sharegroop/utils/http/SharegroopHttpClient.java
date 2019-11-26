@@ -157,7 +157,7 @@ public class SharegroopHttpClient {
      *
      * @param requestConfiguration
      */
-    public void verifyPartnerConfiguartionURL(RequestConfiguration requestConfiguration) {
+    public void verifyPartnerConfigurationURL(RequestConfiguration requestConfiguration) {
         if (requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL)== null) {
             throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
         }
@@ -176,7 +176,7 @@ public class SharegroopHttpClient {
      */
     public SharegroopAPICallResponse verifyOrder(RequestConfiguration requestConfiguration, String createdOrderId){
         // Check if API url are present
-        verifyPartnerConfiguartionURL(requestConfiguration);
+        verifyPartnerConfigurationURL(requestConfiguration);
 
         // Check if the createdOrderId is present
         if (createdOrderId == null) {
@@ -271,7 +271,7 @@ public class SharegroopHttpClient {
      */
     public StringResponse post(RequestConfiguration requestConfiguration, String createdOrderId, String path, String body){
         // Check if API url are present
-        verifyPartnerConfiguartionURL(requestConfiguration);
+        verifyPartnerConfigurationURL(requestConfiguration);
 
         String baseUrl = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL);
 

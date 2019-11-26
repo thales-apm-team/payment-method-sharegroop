@@ -8,11 +8,16 @@ import com.payline.pmapi.bean.configuration.request.ContractParametersCheckReque
 import com.payline.pmapi.bean.payment.*;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
+import com.payline.pmapi.bean.refund.request.RefundRequest;
+import com.payline.pmapi.bean.reset.request.ResetRequest;
 
 import java.math.BigInteger;
 import java.util.*;
 
 public class MockUtils {
+    private static String TRANSACTIONID = "123456789012345678901";
+    private static String PARTNER_TRANSACTIONID = "098765432109876543210";
+
     /**------------------------------------------------------------------------------------------------------------------*/
 
     /**
@@ -207,7 +212,42 @@ public class MockUtils {
                 .withPartnerConfiguration(aPartnerConfiguration())
                 .withPaymentFormContext(aPaymentFormContext())
                 .withSoftDescriptor("softDescriptor")
-                .withTransactionId("123456789012345678901");
+                .withTransactionId(TRANSACTIONID);
+    }
+
+    public static RefundRequest aPaylineRefundRequest(){
+        return aPaylineRefundRequestBuilder().build();
+    }
+
+    public static RefundRequest.RefundRequestBuilder aPaylineRefundRequestBuilder(){
+            return RefundRequest.RefundRequestBuilder.aRefundRequest()
+                    .withAmount(aPaylineAmount())
+                    .withOrder(aPaylineOrder())
+                    .withBuyer(aBuyer())
+                    .withContractConfiguration(aContractConfiguration())
+                    .withEnvironment(anEnvironment())
+                    .withTransactionId(TRANSACTIONID)
+                    .withPartnerTransactionId(PARTNER_TRANSACTIONID)
+                    .withPartnerConfiguration(aPartnerConfiguration());
+    }
+
+
+    public static ResetRequest aPaylineResetRequest() {
+        return aPaylineResetRequestBuilder().build();
+
+
+    }
+
+    public static ResetRequest.ResetRequestBuilder aPaylineResetRequestBuilder(){
+        return ResetRequest.ResetRequestBuilder.aResetRequest()
+                .withAmount(aPaylineAmount())
+                .withOrder(aPaylineOrder())
+                .withBuyer(aBuyer())
+                .withContractConfiguration(aContractConfiguration())
+                .withEnvironment(anEnvironment())
+                .withTransactionId(TRANSACTIONID)
+                .withPartnerTransactionId(PARTNER_TRANSACTIONID)
+                .withPartnerConfiguration(aPartnerConfiguration());
     }
 
 
@@ -247,5 +287,46 @@ public class MockUtils {
         return new ContractConfiguration("Sharegroop", contractProperties);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
+
+    public static String aShareGroopResponse(String status){
+        return "{" +
+                "\"success\":true," +
+                "\"data\":" +
+                "{" +
+                "\"currency\":\"EUR\"," +
+                "\"lastName\":\"Doe\"," +
+                "\"platformId\":\"pl_5ee79772-d68b-4e83-b334-b9b5c0349738\"," +
+                "\"delay\":8640," +
+                "\"dueDate\":1573737727739," +
+                "\"status\":\""+status+"\"," +
+                "\"email\":\"martin@email.com\"," +
+                "\"firstName\":\"John\"," +
+                "\"id\":\"ord_7d4ca1a9-1c4e-47bd-9d1a-9330b605571d\"," +
+                "\"toProcess\":1," +
+                "\"ux\":\"collect\"," +
+                "\"ecard\":false," +
+                "\"locale\":\"en\"," +
+                "\"trackId\":\"TRACK-1\"," +
+                "\"createdAt\":1573219327739," +
+                "\"integration\":\"front\"," +
+                "\"items\":[" +
+                "{" +
+                "\"name\":\"Product A\"," +
+                "\"description\":\"Description A\"," +
+                "\"amount\":12000," +
+                "\"id\":\"itm_9de81228-7034-4f17-a07a-c85b8da98cea\"," +
+                "\"quantity\":1," +
+                "\"trackId\":\"TRACK-A\"" +
+                "}" +
+                "]," +
+                "\"amountConfirmed\":12000," +
+                "\"updatedAt\":1573219550511," +
+                "\"nbShares\":1," +
+                "\"amount\":12000," +
+                "\"secure3D\":true," +
+                "\"type\":\"direct\"" +
+                "}" +
+                "}";
+    }
 
 }

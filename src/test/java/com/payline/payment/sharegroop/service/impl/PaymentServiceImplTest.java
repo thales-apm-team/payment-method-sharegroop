@@ -7,8 +7,10 @@ import com.payline.pmapi.bean.payment.PaymentFormContext;
 import com.payline.pmapi.bean.payment.RequestContext;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFormUpdated;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
+import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseSpecific;
 import com.payline.pmapi.service.PaymentService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +45,7 @@ class PaymentServiceImplTest {
         Assertions.assertEquals(PaymentResponseFormUpdated.class, response.getClass());
     }
 
+
     @Test
     void paymentRequestStep2() {
         // init data
@@ -76,48 +79,39 @@ class PaymentServiceImplTest {
                 .withPaymentFormContext(paymentFormContext)
                 .build();
 
-        // create mock
-        String jsonResponse = "{\n" +
-                "  \"success\": true,\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"ord_64cfb50d-0053-4e23-975a-572f7d7dba98\",\n" +
-                "    \"platformId\": \"pl_e9962604-78a9-41d6-9b26-0735514e8b16\",\n" +
-                "    \"amount\": 14400,\n" +
-                "    \"amountConfirmed\": 0,\n" +
-                "    \"delay\": 8640,\n" +
-                "    \"secure3D\": true,\n" +
-                "    \"currency\": \"EUR\",\n" +
-                "    \"locale\": \"en\",\n" +
-                "    \"ux\": \"collect\",\n" +
-                "    \"type\": \"direct\",\n" +
-                "    \"status\": \"authorized\",\n" +
-                "    \"createdAt\": 1553867170278,\n" +
-                "    \"email\": \"captain@example.com\",\n" +
-                "    \"firstName\": \"John\",\n" +
-                "    \"lastName\": \"Carter\",\n" +
-                "    \"trackId\": \"MY-INTERN-ID\",\n" +
-                "    \"dueDate\": 1554385570278,\n" +
-                "    \"items\": [\n" +
-                "      {\n" +
-                "        \"id\": \"itm_8037cc50-e800-473a-b807-c80fe32d0606\",\n" +
-                "        \"name\": \"Product B\",\n" +
-                "        \"amount\": 5000,\n" +
-                "        \"quantity\": 1,\n" +
-                "        \"description\": \"Description B\"\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
-        SharegroopAPICallResponse apiResponse = SharegroopAPICallResponse.fromJson(jsonResponse);
-        Mockito.doReturn(apiResponse).when(sharegroopHttpClient).verifyOrder(Mockito.any(), Mockito.any());
 
         PaymentResponse response = service.paymentRequest(request);
-
         Assertions.assertEquals(PaymentResponseFormUpdated.class, response.getClass());
+        PaymentResponseFormUpdated responseFormUpdated = (PaymentResponseFormUpdated) response;
+        Assertions.assertEquals(PaymentFormConfigurationResponseSpecific.class, responseFormUpdated.getPaymentFormConfigurationResponse().getClass());
+    }
+
+
+    @Test
+    void paymentRequestStep2WithoutData() {
+        // init data
+        Map<String, String> requestContextData = new HashMap<>();
+        requestContextData.put("STEP", "STEP2");
+
+        RequestContext context = RequestContext.RequestContextBuilder
+                .aRequestContext()
+                .withRequestData(requestContextData)
+                .build();
+
+        PaymentRequest request = MockUtils.aPaylinePaymentRequestBuilder()
+                .withRequestContext(context)
+                .build();
+
+        PaymentResponse response = service.paymentRequest(request);
+        Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
     }
 
     @Test
     void paymentRequestStep3() {
+        // create mock
+        SharegroopAPICallResponse apiResponse = SharegroopAPICallResponse.fromJson(MockUtils.aShareGroopResponse("confirmed"));
+        Mockito.doReturn(apiResponse).when(sharegroopHttpClient).verifyOrder(Mockito.any(), Mockito.any());
+
         Map<String, String> requestContextData = new HashMap<>();
         requestContextData.put("STEP", "STEP3");
         requestContextData.put("EMAIL", "foo@bar.baz");
@@ -136,5 +130,47 @@ class PaymentServiceImplTest {
 
         PaymentResponse response = service.paymentRequest(request);
         Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
+    }
+
+    @Test
+    void paymentRequestStep3WithoutData() {
+        // create mock
+        SharegroopAPICallResponse apiResponse = SharegroopAPICallResponse.fromJson(MockUtils.aShareGroopResponse("confirmed"));
+        Mockito.doReturn(apiResponse).when(sharegroopHttpClient).verifyOrder(Mockito.any(), Mockito.any());
+
+        Map<String, String> requestContextData = new HashMap<>();
+        requestContextData.put("STEP", "STEP3");
+
+        RequestContext context = RequestContext.RequestContextBuilder
+                .aRequestContext()
+                .withRequestData(requestContextData)
+                .build();
+
+        PaymentRequest request = MockUtils.aPaylinePaymentRequestBuilder()
+                .withRequestContext(context)
+                .build();
+
+        PaymentResponse response = service.paymentRequest(request);
+        Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
+    }
+
+    @Test
+    void paymentRequestStepXXX() {
+        // init data
+        Map<String, String> requestContextData = new HashMap<>();
+        requestContextData.put("STEP", "STEPXXX");
+
+        RequestContext context = RequestContext.RequestContextBuilder
+                .aRequestContext()
+                .withRequestData(requestContextData)
+                .build();
+
+        PaymentRequest request = MockUtils.aPaylinePaymentRequestBuilder()
+                .withRequestContext(context)
+                .build();
+
+        PaymentResponse response = service.paymentRequest(request);
+
+        Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
     }
 }

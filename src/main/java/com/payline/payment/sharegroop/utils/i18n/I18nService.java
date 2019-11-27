@@ -16,9 +16,8 @@ public class I18nService {
     private static final Logger LOGGER = LogManager.getLogger(I18nService.class);
     private static final String DEFAULT_LOCALE = "en";
 
-    private ConfigProperties configProperties = ConfigProperties.getInstance();
-
-    I18nService() {
+    private I18nService() {
+        ConfigProperties configProperties = ConfigProperties.getInstance();
         String defaultLocale = configProperties.get("i18n.defaultLocale");
         Locale.setDefault( new Locale(defaultLocale != null ? defaultLocale : DEFAULT_LOCALE) );
     }

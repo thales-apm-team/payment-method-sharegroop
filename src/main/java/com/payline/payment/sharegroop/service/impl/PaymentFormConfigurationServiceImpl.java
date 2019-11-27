@@ -10,8 +10,6 @@ import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFor
 import java.util.Locale;
 
 public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigurationService {
-    private I18nService i18n = I18nService.getInstance();
-
     private static final String PAYMENT_BUTTON_TEXT = "payment.form.config.button.text";
     private static final String PAYMENT_BUTTON_DESC = "payment.form.config.description";
 

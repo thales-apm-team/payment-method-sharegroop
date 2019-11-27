@@ -48,8 +48,8 @@ public class PaymentServiceImpl implements PaymentService {
     private static final String CONTEXT_DATA_ORDER = "ORDER";
     private static final String CONTEXT_DATA_EMAIL = "EMAIL";
     private static final String CONTEXT_DATA_STATUS = "STATUS";
-    private static final String STEP1_DESCRIPTION = "Captain init window";
-    private static final String STEP2_DESCRIPTION = "Go see mail";
+    private static final String STEP1_DESCRIPTION = "step1.description";
+    private static final String STEP2_DESCRIPTION = "step2.description";
     private static final String STEP2 = "STEP2";
     private static final String STEP3 = "STEP3";
 
@@ -74,7 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private static final String CALLBACK = "[CALLBACK]";
 
-    private static final String SHOW_MAIL_MESSAGE_FIELD = ""; // todo bien tout ecrire dans les messages
+    private static final String SHOW_MAIL_MESSAGE_FIELD = "step2.message";
 
     private static final Logger LOGGER = LogManager.getLogger(PaymentServiceImpl.class);
     private SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();

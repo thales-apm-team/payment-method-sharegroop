@@ -17,7 +17,7 @@ import static org.mockito.Mockito.mock;
  * Utility class for test purpose related to HTTP calls.
  */
 
-public class HttpTestUtils {
+class HttpTestUtils {
 /**------------------------------------------------------------------------------------------------------------------*/
     /**
      * Mock an HTTP Response with the given elements.

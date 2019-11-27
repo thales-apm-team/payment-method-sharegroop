@@ -16,9 +16,9 @@ public class Constants {
         public static final String SECURE_3D = "SECURE_3D";
 
 
-
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
-        private ContractConfigurationKeys(){}
+        private ContractConfigurationKeys() {
+        }
     }
 
     /**
@@ -29,22 +29,12 @@ public class Constants {
         public static final String SHAREGROOP_URL = "SHAREGROOP_URL";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
-        private PartnerConfigurationKeys(){}
-    }
-
-
-    /**
-     * Keys for the entries in RequestContext data.
-     */
-    public static class RequestContextKeys {
-
-        public static final String PAYMENT_ID = "paymentId";
-
-        /* Static utility class : no need to instantiate it (Sonar bug fix) */
-        private RequestContextKeys(){}
+        private PartnerConfigurationKeys() {
+        }
     }
 
     /* Static utility class : no need to instantiate it (Sonar bug fix) */
-    private Constants(){}
+    private Constants() {
+    }
 
 }

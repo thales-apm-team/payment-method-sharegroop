@@ -113,7 +113,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             sharegroopHttpClient.verifyPrivateKey(requestConfiguration);
         }
         catch( PluginException e ){
-            // If an exception is thrown, it means that the clientprivate key is wrong
+            // If an exception is thrown, it means that the client private key is wrong
             errors.put( clientPrivateKey, e.getErrorCode() );
         }
 

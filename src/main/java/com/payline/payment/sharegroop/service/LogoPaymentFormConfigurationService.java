@@ -21,9 +21,8 @@ import java.util.Locale;
 public abstract class LogoPaymentFormConfigurationService implements PaymentFormConfigurationService {
 
     private static final Logger LOGGER = LogManager.getLogger(LogoPaymentFormConfigurationService.class);
-
     protected I18nService i18n = I18nService.getInstance();
-    protected ConfigProperties config = ConfigProperties.getInstance();
+    private ConfigProperties config = ConfigProperties.getInstance();
 
     @Override
     public PaymentFormLogoResponse getPaymentFormLogo(PaymentFormLogoRequest paymentFormLogoRequest) {

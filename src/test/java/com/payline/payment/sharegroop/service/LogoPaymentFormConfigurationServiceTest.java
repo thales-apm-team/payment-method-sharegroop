@@ -21,7 +21,7 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
-public class LogoPaymentFormConfigurationServiceTest {
+class LogoPaymentFormConfigurationServiceTest {
 
     /**
      * Private class used to test abstract class {@link LogoPaymentFormConfigurationService}.

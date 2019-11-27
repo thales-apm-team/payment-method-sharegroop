@@ -7,6 +7,7 @@ import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.payment.*;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
+import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
 import com.payline.pmapi.bean.refund.request.RefundRequest;
 import com.payline.pmapi.bean.reset.request.ResetRequest;
@@ -14,11 +15,10 @@ import com.payline.pmapi.bean.reset.request.ResetRequest;
 import java.math.BigInteger;
 import java.util.*;
 
+@SuppressWarnings("WeakerAccess")
 public class MockUtils {
-    private static String TRANSACTIONID = "123456789012345678901";
-    private static String PARTNER_TRANSACTIONID = "098765432109876543210";
-
-    /**------------------------------------------------------------------------------------------------------------------*/
+    private static final String TRANSACTIONID = "123456789012345678901";
+    private static final String PARTNER_TRANSACTIONID = "098765432109876543210";
 
     /**
      * Generate a valid {@link Environment}.
@@ -29,7 +29,7 @@ public class MockUtils {
                 "http://redirectionCancelURL.com",
                 true);
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
+
     /**
      * Generate a valid {@link PartnerConfiguration}.
      */
@@ -42,7 +42,7 @@ public class MockUtils {
 
         return new PartnerConfiguration(partnerConfigurationMap, sensitiveConfigurationMap);
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
+
     /**
      * Generate a valid {@link PaymentFormLogoRequest}.
      */
@@ -55,16 +55,12 @@ public class MockUtils {
                 .build();
     }
 
-    /**
-     * ------------------------------------------------------------------------------------------------------------------
-     */
+
     public static String anOrderId() {
         return "ord_92aa7cfc-45df-4cf8-96f9-dd19b4bb3d09";
     }
 
-    /**
-     * ------------------------------------------------------------------------------------------------------------------
-     */
+
     public static Order anOrder() {
         String body = "{\n" +
                 "\t\"amount\": 10000,\n" +
@@ -167,14 +163,13 @@ public class MockUtils {
                 .build();
     }
 
-    /**------------------------------------------------------------------------------------------------------------------*/
     /**
      * Generate a valid {@link ContractParametersCheckRequest}.
      */
     public static ContractParametersCheckRequest aContractParametersCheckRequest() {
         return aContractParametersCheckRequestBuilder().build();
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
+
     /**
      * Generate a builder for a valid {@link ContractParametersCheckRequest}.
      * This way, some attributes may be overridden to match specific test needs.
@@ -185,6 +180,28 @@ public class MockUtils {
                 .withContractConfiguration(aContractConfiguration())
                 .withEnvironment(anEnvironment())
                 .withLocale(Locale.getDefault())
+                .withPartnerConfiguration(aPartnerConfiguration());
+    }
+
+    /**
+     * Generate a valid {@link PaymentFormConfigurationRequest}.
+     */
+    public static PaymentFormConfigurationRequest aPaymentFormConfigurationRequest() {
+        return aPaymentFormConfigurationRequestBuilder().build();
+    }
+
+    /**
+     * Generate a builder for a valid {@link PaymentFormConfigurationRequest}.
+     * This way, some attributes may be overridden to match specific test needs.
+     */
+    public static PaymentFormConfigurationRequest.PaymentFormConfigurationRequestBuilder aPaymentFormConfigurationRequestBuilder() {
+        return PaymentFormConfigurationRequest.PaymentFormConfigurationRequestBuilder.aPaymentFormConfigurationRequest()
+                .withAmount(aPaylineAmount())
+                .withBuyer(aBuyer())
+                .withContractConfiguration(aContractConfiguration())
+                .withEnvironment(anEnvironment())
+                .withLocale(Locale.FRANCE)
+                .withOrder(aPaylineOrder())
                 .withPartnerConfiguration(aPartnerConfiguration());
     }
 
@@ -215,20 +232,20 @@ public class MockUtils {
                 .withTransactionId(TRANSACTIONID);
     }
 
-    public static RefundRequest aPaylineRefundRequest(){
+    public static RefundRequest aPaylineRefundRequest() {
         return aPaylineRefundRequestBuilder().build();
     }
 
-    public static RefundRequest.RefundRequestBuilder aPaylineRefundRequestBuilder(){
-            return RefundRequest.RefundRequestBuilder.aRefundRequest()
-                    .withAmount(aPaylineAmount())
-                    .withOrder(aPaylineOrder())
-                    .withBuyer(aBuyer())
-                    .withContractConfiguration(aContractConfiguration())
-                    .withEnvironment(anEnvironment())
-                    .withTransactionId(TRANSACTIONID)
-                    .withPartnerTransactionId(PARTNER_TRANSACTIONID)
-                    .withPartnerConfiguration(aPartnerConfiguration());
+    public static RefundRequest.RefundRequestBuilder aPaylineRefundRequestBuilder() {
+        return RefundRequest.RefundRequestBuilder.aRefundRequest()
+                .withAmount(aPaylineAmount())
+                .withOrder(aPaylineOrder())
+                .withBuyer(aBuyer())
+                .withContractConfiguration(aContractConfiguration())
+                .withEnvironment(anEnvironment())
+                .withTransactionId(TRANSACTIONID)
+                .withPartnerTransactionId(PARTNER_TRANSACTIONID)
+                .withPartnerConfiguration(aPartnerConfiguration());
     }
 
 
@@ -238,7 +255,7 @@ public class MockUtils {
 
     }
 
-    public static ResetRequest.ResetRequestBuilder aPaylineResetRequestBuilder(){
+    public static ResetRequest.ResetRequestBuilder aPaylineResetRequestBuilder() {
         return ResetRequest.ResetRequestBuilder.aResetRequest()
                 .withAmount(aPaylineAmount())
                 .withOrder(aPaylineOrder())
@@ -251,7 +268,6 @@ public class MockUtils {
     }
 
 
-    /**------------------------------------------------------------------------------------------------------------------*/
     /**
      * Generate a valid accountInfo, an attribute of a {@link ContractParametersCheckRequest} instance.
      */
@@ -273,7 +289,6 @@ public class MockUtils {
         }
         return accountInfo;
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
     /**
      * Generate a valid {@link ContractConfiguration}.
      */
@@ -286,9 +301,13 @@ public class MockUtils {
 
         return new ContractConfiguration("Sharegroop", contractProperties);
     }
-    /**------------------------------------------------------------------------------------------------------------------*/
 
-    public static String aShareGroopResponse(String status){
+    /**
+     * Generate a json shareGroop response message
+     * @param status
+     * @return
+     */
+    public static String aShareGroopResponse(String status) {
         return "{" +
                 "\"success\":true," +
                 "\"data\":" +
@@ -298,7 +317,7 @@ public class MockUtils {
                 "\"platformId\":\"pl_5ee79772-d68b-4e83-b334-b9b5c0349738\"," +
                 "\"delay\":8640," +
                 "\"dueDate\":1573737727739," +
-                "\"status\":\""+status+"\"," +
+                "\"status\":\"" + status + "\"," +
                 "\"email\":\"martin@email.com\"," +
                 "\"firstName\":\"John\"," +
                 "\"id\":\"ord_7d4ca1a9-1c4e-47bd-9d1a-9330b605571d\"," +

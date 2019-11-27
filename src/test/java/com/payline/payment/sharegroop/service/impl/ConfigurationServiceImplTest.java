@@ -25,7 +25,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ConfigurationServiceImplTest {
+class ConfigurationServiceImplTest {
 
     @Mock SharegroopHttpClient sharegroopHttpClient;
     @Mock private ReleaseProperties releaseProperties;

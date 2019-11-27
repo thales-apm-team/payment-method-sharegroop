@@ -34,16 +34,15 @@ import java.util.Map;
 public class SharegroopHttpClient {
 
     private static final Logger LOGGER = LogManager.getLogger(SharegroopHttpClient.class);
-    private ConfigProperties config = ConfigProperties.getInstance();
 
     //Headers
     private static final String CONTENT_TYPE_VALUE = "application/json";
 
     // Paths
-    public static final String PATH_VERSION = "v1";
-    public static final String PATH_ORDER = "orders";
-    public static final String REFUND = "refund";
-    public static final String CANCEL = "cancel";
+    private static final String PATH_VERSION = "v1";
+    private static final String PATH_ORDER = "orders";
+    private static final String REFUND = "refund";
+    private static final String CANCEL = "cancel";
 
     // Exceptions messages
     private static final String SERVICE_URL_ERROR = "Service URL is invalid";
@@ -66,6 +65,7 @@ public class SharegroopHttpClient {
             int socketTimeout;
             try {
                 // request config timeouts (in seconds)
+                ConfigProperties config = ConfigProperties.getInstance();
                 connectionRequestTimeout = Integer.parseInt(config.get("http.connectionRequestTimeout"));
                 connectTimeout = Integer.parseInt(config.get("http.connectTimeout"));
                 socketTimeout = Integer.parseInt(config.get("http.socketTimeout"));
@@ -108,7 +108,7 @@ public class SharegroopHttpClient {
     /**
      * ------------------------------------------------------------------------------------------------------------------
      */
-    public String createPath(String... path) {
+    private String createPath(String... path) {
         StringBuilder sb = new StringBuilder("/");
         if (path != null && path.length > 0) {
             for (String aPath : path) {
@@ -157,7 +157,7 @@ public class SharegroopHttpClient {
      *
      * @param requestConfiguration
      */
-    public void verifyPartnerConfigurationURL(RequestConfiguration requestConfiguration) {
+    private void verifyPartnerConfigurationURL(RequestConfiguration requestConfiguration) {
         if (requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.SHAREGROOP_URL)== null) {
             throw new InvalidDataException("Missing API url from partner configuration (sentitive properties)");
         }

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-public class ResetServiceImplTest {
+class ResetServiceImplTest {
 
     private static final String RESET_RESPONSE_KO = "{\n" +
             "    \"status\": 400,\n" +

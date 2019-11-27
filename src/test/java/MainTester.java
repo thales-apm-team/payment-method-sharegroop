@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 
-public class MainTester {
+class MainTester {
     private static final Logger LOGGER = LogManager.getLogger(MainTester.class);
-    private static SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
+    private static final SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
     /**------------------------------------------------------------------------------------------------------------------*/
     public static void main(String[] args) throws IOException {
         SharegroopAPICallResponse dataCreateOrder;

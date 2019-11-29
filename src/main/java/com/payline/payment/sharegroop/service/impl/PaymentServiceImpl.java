@@ -91,11 +91,10 @@ public class PaymentServiceImpl implements PaymentService {
                 return step1(paymentRequest);
             } else if (STEP2.equalsIgnoreCase(step)) {
                 // second step, show a message to the buyer to see his mail to get the link
-
                 return step2(paymentRequest);
             } else if (STEP3.equalsIgnoreCase(step)) {
-                // second step, an API call to verify the transaction status is needed
-                // if the response is OK and the status is "authorized" or "captured", then return a successResponse
+                // third step, an API call to verify the transaction status is needed
+                // if the response is OK and the status is "confirmed", then return a successResponse
                 return step3(paymentRequest);
             } else {
                 // should never append

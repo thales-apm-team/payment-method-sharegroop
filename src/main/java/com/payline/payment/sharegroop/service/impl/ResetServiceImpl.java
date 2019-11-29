@@ -5,8 +5,6 @@ import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
 import com.payline.payment.sharegroop.exception.PluginException;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
-import com.payline.pmapi.bean.refund.response.impl.RefundResponseFailure;
-import com.payline.pmapi.bean.refund.response.impl.RefundResponseSuccess;
 import com.payline.pmapi.bean.reset.request.ResetRequest;
 import com.payline.pmapi.bean.reset.response.ResetResponse;
 import com.payline.pmapi.bean.reset.response.impl.ResetResponseFailure;
@@ -28,17 +26,22 @@ public class ResetServiceImpl implements ResetService {
             SharegroopAPICallResponse sharegroopAPICallResponse = httpClient.cancelOrder(requestConfiguration, resetRequest.getTransactionId());
 
             if (sharegroopAPICallResponse.getSuccess()) {
-                sharegroopAPICallResponse = httpClient.verifyOrder(requestConfiguration,resetRequest.getTransactionId());
+                // verify the final status of the transaction
+                sharegroopAPICallResponse = httpClient.verifyOrder(requestConfiguration, resetRequest.getTransactionId());
                 if (sharegroopAPICallResponse.getSuccess() && "refunded".equalsIgnoreCase(sharegroopAPICallResponse.getData().getStatus())) {
-                    return createResponseSuccess(sharegroopAPICallResponse);
-                }else{
-                    return createResponseFailure(sharegroopAPICallResponse);
+                    return ResetResponseSuccess.ResetResponseSuccessBuilder
+                            .aResetResponseSuccess()
+                            .withPartnerTransactionId(sharegroopAPICallResponse.getData().getId())
+                            .withStatusCode(sharegroopAPICallResponse.getStatus())
+                            .build();
                 }
-            }else{
-                return createResponseFailure(sharegroopAPICallResponse);
             }
-
-
+            return ResetResponseFailure.ResetResponseFailureBuilder
+                    .aResetResponseFailure()
+                    .withPartnerTransactionId(sharegroopAPICallResponse.getData().getId())
+                    .withErrorCode(sharegroopAPICallResponse.getStatus())
+                    .withFailureCause(FailureCause.INVALID_DATA)
+                    .build();
         } catch (PluginException e) {
             return e.toResetResponseFailureBuilder().build();
         } catch (RuntimeException e) {
@@ -59,23 +62,4 @@ public class ResetServiceImpl implements ResetService {
     public boolean canPartial() {
         return false;
     }
-
-    /**------------------------------------------------------------------------------------------------------------------*/
-    private ResetResponseFailure createResponseFailure(SharegroopAPICallResponse response) {
-        return ResetResponseFailure.ResetResponseFailureBuilder
-                .aResetResponseFailure()
-                .withPartnerTransactionId(response.getData().getId())
-                .withErrorCode(response.getStatus())
-                .withFailureCause(FailureCause.INVALID_DATA)
-                .build();
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
-    private ResetResponseSuccess createResponseSuccess(SharegroopAPICallResponse response) {
-        return ResetResponseSuccess.ResetResponseSuccessBuilder
-                .aResetResponseSuccess()
-                .withPartnerTransactionId(response.getData().getId())
-                .withStatusCode(response.getStatus())
-                .build();
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
 }

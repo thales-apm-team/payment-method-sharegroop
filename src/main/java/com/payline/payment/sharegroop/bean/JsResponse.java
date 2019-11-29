@@ -31,7 +31,6 @@ public class JsResponse {
     }
 
     public static JsResponse fromJson(String json ){
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
-        return gson.fromJson( json, JsResponse.class );
+        return new Gson().fromJson( json, JsResponse.class );
     }
 }

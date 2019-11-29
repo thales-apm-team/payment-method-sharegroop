@@ -30,7 +30,6 @@ public class SharegroopAPICallResponse {
     }
 
     public static SharegroopAPICallResponse fromJson(String json ){
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson( json, SharegroopAPICallResponse.class );
+        return new Gson().fromJson( json, SharegroopAPICallResponse.class );
     }
 }

@@ -18,22 +18,25 @@ public class RefundServiceImpl implements RefundService {
     private static final Logger LOGGER = LogManager.getLogger(RefundServiceImpl.class);
     private SharegroopHttpClient httpClient = SharegroopHttpClient.getInstance();
 
-    /**
-     * ------------------------------------------------------------------------------------------------------------------
-     */
     @Override
     public RefundResponse refundRequest(RefundRequest refundRequest) {
         try {
             RequestConfiguration requestConfiguration = new RequestConfiguration(refundRequest.getContractConfiguration(), refundRequest.getEnvironment(), refundRequest.getPartnerConfiguration());
             SharegroopAPICallResponse sharegroopAPICallResponse = httpClient.refundOrder(requestConfiguration, refundRequest.getTransactionId());
 
-            if (sharegroopAPICallResponse.getSuccess()) {
-                if ("refunded".equalsIgnoreCase(sharegroopAPICallResponse.getData().getStatus())) {
-                    return createResponseSuccess(sharegroopAPICallResponse);
-                }
+            if (sharegroopAPICallResponse.getSuccess() && "refunded".equalsIgnoreCase(sharegroopAPICallResponse.getData().getStatus())) {
+                return RefundResponseSuccess.RefundResponseSuccessBuilder
+                        .aRefundResponseSuccess()
+                        .withPartnerTransactionId(sharegroopAPICallResponse.getData().getId())
+                        .withStatusCode(sharegroopAPICallResponse.getStatus())
+                        .build();
             }
-            return createResponseFailure(sharegroopAPICallResponse);
-
+            return RefundResponseFailure.RefundResponseFailureBuilder
+                    .aRefundResponseFailure()
+                    .withPartnerTransactionId(sharegroopAPICallResponse.getData().getId())
+                    .withErrorCode(sharegroopAPICallResponse.getStatus())
+                    .withFailureCause(FailureCause.INVALID_DATA)
+                    .build();
         } catch (PluginException e) {
             return e.toRefundResponseFailureBuilder().build();
         } catch (RuntimeException e) {
@@ -45,43 +48,14 @@ public class RefundServiceImpl implements RefundService {
         }
     }
 
-    /**
-     * ------------------------------------------------------------------------------------------------------------------
-     */
     @Override
     public boolean canMultiple() {
         return false;
     }
 
-    /**
-     * ------------------------------------------------------------------------------------------------------------------
-     */
     @Override
     public boolean canPartial() {
         return false;
     }
 
-    /**
-     * ------------------------------------------------------------------------------------------------------------------
-     */
-    private RefundResponseFailure createResponseFailure(SharegroopAPICallResponse response) {
-        return RefundResponseFailure.RefundResponseFailureBuilder
-                .aRefundResponseFailure()
-                .withPartnerTransactionId(response.getData().getId())
-                .withErrorCode(response.getStatus())
-                .withFailureCause(FailureCause.INVALID_DATA)
-                .build();
-    }
-
-    /**
-     * ------------------------------------------------------------------------------------------------------------------
-     */
-    private RefundResponseSuccess createResponseSuccess(SharegroopAPICallResponse response) {
-        return RefundResponseSuccess.RefundResponseSuccessBuilder
-                .aRefundResponseSuccess()
-                .withPartnerTransactionId(response.getData().getId())
-                .withStatusCode(response.getStatus())
-                .build();
-    }
-    /**------------------------------------------------------------------------------------------------------------------*/
 }

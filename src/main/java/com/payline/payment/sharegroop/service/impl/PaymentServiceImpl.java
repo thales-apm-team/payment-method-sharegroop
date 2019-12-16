@@ -32,31 +32,23 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class PaymentServiceImpl implements PaymentService {
     private static final String DATA = "data";
 
+
     private static final String SHAREGROOP_URL = "https://widget.sandbox.sharegroop.com/widget.js";
     private static final String DIV_ID = "sharegroopPaymentForm";
     private static final String CALLBACK_NAME = "paylineProcessPaymentCallback";
     private static final String CONTEXT_DATA_STEP = "STEP";
-    private static final String CONTEXT_DATA_ORDER = "ORDER";
-    private static final String CONTEXT_DATA_EMAIL = "EMAIL";
-    private static final String CONTEXT_DATA_STATUS = "STATUS";
     private static final String STEP1_DESCRIPTION = "step1.description";
-    private static final String STEP2_DESCRIPTION = "step2.description";
     private static final String STEP2 = "STEP2";
-    private static final String STEP3 = "STEP3";
 
     private static final String SELECTOR = "[SELECTOR]";
     private static final String PUBLIC_KEY = "[PUBLIC_KEY]";
     private static final String LOCALE = "[LOCALE]";
-    private static final String ORDER_ID = "[ORDER_ID]";
 
     private static final String CURRENCY = "[CURRENCY]";
     private static final String AMOUNT = "[AMOUNT]";
@@ -74,7 +66,32 @@ public class PaymentServiceImpl implements PaymentService {
 
     private static final String CALLBACK = "[CALLBACK]";
 
-    private static final String SHOW_MAIL_MESSAGE_FIELD = "step2.message";
+    private static final String TEMPLATE_SCRIPT = "ShareGroop.initCaptain({\n" +
+            "        \"selector\": \"#" + SELECTOR + "\",\n" +
+            "        \"publicKey\": \"" + PUBLIC_KEY + "\",\n" +
+            "        \"locale\": \"" + LOCALE + "\",\n" +
+            "        \"currency\": \"" + CURRENCY + "\",\n" +
+            "        \"order\": {\n" +
+            "           \"email\": \"" + EMAIL + "\",\n" +
+            "           \"ux\": \"" + UX + "\"," +
+            "           \"firstName\": \"" + FIRSTNAME + "\",\n" +
+            "           \"lastName\": \"" + LASTNAME + "\",\n" +
+            "           \"trackId\": \"" + TRACK_ID + "\",\n" +
+            "           \"amount\": " + AMOUNT + ",\n" +
+            "           \"items\": [ " + ITEMS + " ]\n" +
+            "        },\n" +
+            "        \"events\": {\n" +
+            "          \"onValidated\": function(data) { " + CALLBACK + "(data); },\n" +
+            "          \"onInvalid\": function () {     " + CALLBACK + "(); },\n" +
+            "          \"onError\": function () {     " + CALLBACK + "(); }\n" +
+            "        }\n" +
+            "    }).mount();";
+
+    private static final String TEMPLATE_ITEM = "{\n" +
+            "               \"trackId\": \"" + ITEM_TRACK_ID + "\",\n" +
+            "               \"amount\": " + ITEM_AMOUNT + ",\n" +
+            "               \"quantity\": " + ITEM_QUANTITY + "\n" +
+            "             }\n";
 
     private static final Logger LOGGER = LogManager.getLogger(PaymentServiceImpl.class);
     private SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
@@ -92,10 +109,6 @@ public class PaymentServiceImpl implements PaymentService {
             } else if (STEP2.equalsIgnoreCase(step)) {
                 // second step, show a message to the buyer to see his mail to get the link
                 return step2(paymentRequest);
-            } else if (STEP3.equalsIgnoreCase(step)) {
-                // third step, an API call to verify the transaction status is needed
-                // if the response is OK and the status is "confirmed", then return a successResponse
-                return step3(paymentRequest);
             } else {
                 // should never append
                 String errorMessage = "Unknown step";
@@ -120,38 +133,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private String getScript(PaymentRequest request) {
-        String templateScript = "ShareGroop.initCaptain({\n" +
-                "        \"selector\": \"#" + SELECTOR + "\",\n" +
-                "        \"publicKey\": \"" + PUBLIC_KEY + "\",\n" +
-                "        \"locale\": \"" + LOCALE + "\",\n" +
-                "        \"currency\": \"" + CURRENCY + "\",\n" +
-                "        \"order\": {\n" +
-                "           \"email\": \"" + EMAIL + "\",\n" +
-                "           \"ux\": \"" + UX + "\"," +
-                "           \"firstName\": \"" + FIRSTNAME + "\",\n" +
-                "           \"lastName\": \"" + LASTNAME + "\",\n" +
-                "           \"trackId\": \"" + TRACK_ID + "\",\n" +
-                "           \"amount\": " + AMOUNT + ",\n" +
-                "           \"items\": [ " + ITEMS + " ]\n" +
-                "        },\n" +
-                "        \"events\": {\n" +
-                "          \"onValidated\": function(data) { " + CALLBACK + "(data); },\n" +
-                "          \"onInvalid\": function () {     " + CALLBACK + "(); },\n" +
-                "          \"onError\": function () {     " + CALLBACK + "(); }\n" +
-                "        }\n" +
-                "    }).mount();";
-
-        String templateItem = "{\n" +
-                "               \"trackId\": \"" + ITEM_TRACK_ID + "\",\n" +
-                "               \"amount\": " + ITEM_AMOUNT + ",\n" +
-                "               \"quantity\": " + ITEM_QUANTITY + "\n" +
-                "             }\n";
-
-
         // create the list of items
         List<String> itemList = new ArrayList<>();
         for (Order.OrderItem i : request.getOrder().getItems()) {
-            String item = templateItem
+            String item = TEMPLATE_ITEM
                     .replace(ITEM_TRACK_ID, i.getReference())
                     .replace(ITEM_AMOUNT, i.getAmount().getAmountInSmallestUnit().toString())
                     .replace(ITEM_QUANTITY, i.getQuantity().toString());
@@ -161,7 +146,7 @@ public class PaymentServiceImpl implements PaymentService {
         String items = String.join(",", itemList);
 
         // create Script with good values
-        return templateScript
+        return TEMPLATE_SCRIPT
                 .replace(SELECTOR, DIV_ID)
                 .replace(PUBLIC_KEY, request.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PUBLIC_KEY).getValue())
                 .replace(LOCALE, request.getLocale().getLanguage())
@@ -180,7 +165,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // create init form to return
         String script = getScript(paymentRequest);
-        PaymentFormConfigurationResponse configurationResponse = createForm(script);
+        PaymentFormConfigurationResponse configurationResponse = createForm(script, paymentRequest.getLocale());
 
         // add step information
         Map<String, String> requestContextMap = new HashMap<>();
@@ -191,13 +176,13 @@ public class PaymentServiceImpl implements PaymentService {
                 .withRequestData(requestContextMap)
                 .build();
 
+        // return the form
         return PaymentResponseFormUpdated.PaymentResponseFormUpdatedBuilder
                 .aPaymentResponseFormUpdated()
                 .withPaymentFormConfigurationResponse(configurationResponse)
                 .withRequestContext(requestContext)
                 .build();
     }
-
 
     private PaymentResponse step2(PaymentRequest request) {
         // extract js response data
@@ -211,60 +196,10 @@ public class PaymentServiceImpl implements PaymentService {
                     .build();
         }
         JsResponse jsResponse = JsResponse.fromJson(jsonPaymentData);
+        String partnerTransactionId = jsResponse.getOrder();
+        String email = jsResponse.getEmail();
 
-        // add step and payment information
-        Map<String, String> requestContextMap = new HashMap<>();
-        requestContextMap.put(CONTEXT_DATA_STEP, STEP3);
-        requestContextMap.put(CONTEXT_DATA_EMAIL, jsResponse.getEmail());
-        requestContextMap.put(CONTEXT_DATA_ORDER, jsResponse.getOrder());
-        requestContextMap.put(CONTEXT_DATA_STATUS, jsResponse.getStatus());
-        RequestContext requestContext = RequestContext
-                .RequestContextBuilder
-                .aRequestContext()
-                .withRequestData(requestContextMap)
-                .build();
-
-
-        List<PaymentFormField> customFields = new ArrayList<>();
-        PaymentFormField field = PaymentFormDisplayFieldText.PaymentFormDisplayFieldTextBuilder
-                .aPaymentFormDisplayFieldText()
-                .withContent( i18n.getMessage(SHOW_MAIL_MESSAGE_FIELD, request.getLocale())  )
-                .build();
-        customFields.add(field);
-
-        AbstractPaymentForm form = CustomForm.builder()
-                .withDisplayButton(false)
-                .withDescription(i18n.getMessage(STEP2_DESCRIPTION, request.getLocale())  )
-                .withCustomFields(customFields)
-                .build();
-
-        PaymentFormConfigurationResponse paymentFormConfigurationResponse = PaymentFormConfigurationResponseSpecific.PaymentFormConfigurationResponseSpecificBuilder
-                .aPaymentFormConfigurationResponseSpecific()
-                .withPaymentForm(form)
-                .build();
-
-        return PaymentResponseFormUpdated.PaymentResponseFormUpdatedBuilder
-                .aPaymentResponseFormUpdated()
-                .withPaymentFormConfigurationResponse(paymentFormConfigurationResponse)
-                .withRequestContext(requestContext)
-                .build();
-    }
-
-    private PaymentResponse step3(PaymentRequest request) {
-        // get data from step2
-        String partnerTransactionId = request.getRequestContext().getRequestData().get(CONTEXT_DATA_ORDER);
-        String email = request.getRequestContext().getRequestData().get(CONTEXT_DATA_EMAIL);
-
-        if (partnerTransactionId == null || email == null){
-            String errorMessage = "Empty step3 data";
-            return PaymentResponseFailure.PaymentResponseFailureBuilder
-                    .aPaymentResponseFailure()
-                    .withErrorCode(PluginUtils.truncate(errorMessage, 50))
-                    .withFailureCause(FailureCause.INVALID_DATA)
-                    .build();
-        }
-
-        // do the call
+        // do the call to verify the transaction status
         RequestConfiguration requestConfiguration = new RequestConfiguration(request.getContractConfiguration(), request.getEnvironment(), request.getPartnerConfiguration());
         SharegroopAPICallResponse response = sharegroopHttpClient.verifyOrder(requestConfiguration, partnerTransactionId);
 
@@ -306,7 +241,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
     }
 
-    private PaymentFormConfigurationResponse createForm(String script) {
+    private PaymentFormConfigurationResponse createForm(String script, Locale locale) {
         try {
             // script to import
             PartnerWidgetScriptImport scriptImport = PartnerWidgetScriptImport.WidgetPartnerScriptImportBuilder
@@ -330,7 +265,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             PartnerWidgetForm widgetForm = PartnerWidgetForm.WidgetPartnerFormBuilder
                     .aWidgetPartnerForm()
-                    .withDescription(PaymentServiceImpl.STEP1_DESCRIPTION)
+                    .withDescription(i18n.getMessage(PaymentServiceImpl.STEP1_DESCRIPTION, locale))
                     .withScriptImport(scriptImport)
                     .withLoadingScriptAfterImport(script)
                     .withContainer(container)

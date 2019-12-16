@@ -45,9 +45,11 @@ class PaymentServiceImplTest {
         Assertions.assertEquals(PaymentResponseFormUpdated.class, response.getClass());
     }
 
-
     @Test
     void paymentRequestStep2() {
+        SharegroopAPICallResponse apiResponse = SharegroopAPICallResponse.fromJson(MockUtils.aShareGroopResponse("confirmed"));
+        Mockito.doReturn(apiResponse).when(sharegroopHttpClient).verifyOrder(Mockito.any(), Mockito.any());
+
         // init data
         Map<String, String> requestContextData = new HashMap<>();
         requestContextData.put("STEP", "STEP2");
@@ -81,9 +83,7 @@ class PaymentServiceImplTest {
 
 
         PaymentResponse response = service.paymentRequest(request);
-        Assertions.assertEquals(PaymentResponseFormUpdated.class, response.getClass());
-        PaymentResponseFormUpdated responseFormUpdated = (PaymentResponseFormUpdated) response;
-        Assertions.assertEquals(PaymentFormConfigurationResponseSpecific.class, responseFormUpdated.getPaymentFormConfigurationResponse().getClass());
+        Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
     }
 
 
@@ -104,32 +104,6 @@ class PaymentServiceImplTest {
 
         PaymentResponse response = service.paymentRequest(request);
         Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
-    }
-
-    @Test
-    void paymentRequestStep3() {
-        // create mock
-        SharegroopAPICallResponse apiResponse = SharegroopAPICallResponse.fromJson(MockUtils.aShareGroopResponse("confirmed"));
-        Mockito.doReturn(apiResponse).when(sharegroopHttpClient).verifyOrder(Mockito.any(), Mockito.any());
-
-        Map<String, String> requestContextData = new HashMap<>();
-        requestContextData.put("STEP", "STEP3");
-        requestContextData.put("EMAIL", "foo@bar.baz");
-        requestContextData.put("ORDER", "123123");
-        requestContextData.put("STATUS", "authorized");
-
-
-        RequestContext context = RequestContext.RequestContextBuilder
-                .aRequestContext()
-                .withRequestData(requestContextData)
-                .build();
-
-        PaymentRequest request = MockUtils.aPaylinePaymentRequestBuilder()
-                .withRequestContext(context)
-                .build();
-
-        PaymentResponse response = service.paymentRequest(request);
-        Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
     }
 
     @Test

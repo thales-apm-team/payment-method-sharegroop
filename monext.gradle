@@ -1,0 +1,53 @@
+
+repositories {
+    mavenLocal()
+    maven {
+        url nexusGroupsUrl
+        credentials {
+            username mavenUser
+            password mavenPassword
+        }
+    }
+    maven {
+        url nexusSnapshotUrl
+        credentials {
+            username mavenUser
+            password mavenPassword
+        }
+    }
+}
+
+publishing {
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+
+            // ça ne veut pas fonctionner
+//            // For release only
+//            if (!project.version.contains('-')) {
+//                artifact testJar
+//            }
+        }
+    }
+    repositories {
+        maven {
+            if (project.version.endsWith('-SNAPSHOT')) {
+                url nexusSnapshotUrl
+            } else {
+                url nexusPublicUrl
+            }
+            credentials {
+                username mavenUser
+                password mavenPassword
+            }
+        }
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.jacoco.reportPaths", "${project.buildDir}/jacoco/test.exec"
+        property "sonar.dependencyCheck.reportPath", "${project.buildDir}/reports/dependency-check-report.xml"
+        property 'sonar.dependencyCheck.htmlReportPath', "${project.buildDir}/reports/dependency-check-report.html"
+    }
+}

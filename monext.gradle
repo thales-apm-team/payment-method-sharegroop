@@ -44,6 +44,12 @@ publishing {
     }
 }
 
+task printVersion {
+    doLast {
+        println version
+    }
+}
+
 sonarqube {
     properties {
         property "sonar.jacoco.reportPaths", "${project.buildDir}/jacoco/test.exec"

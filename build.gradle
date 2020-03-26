@@ -28,7 +28,7 @@ configurations {
 }
 
 ext {
-    paymentMethodApiVersion = '1.6'
+    paymentMethodApiVersion = '1.7'
     powerMockVersion = '1.7.0'
     //paymentMethodIntegrationVersion = '1.4'
 }

@@ -168,7 +168,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // create init form to return
         String url = paymentRequest.getPartnerConfiguration().getProperty(SHAREGROOP_WIDGET_URL);
-        if (url == null | url.length() == 0){
+        if (url == null || url.length() == 0){
             LOGGER.error("PartnerConfig SHAREGROOP_WIDGET_URL is needed");
             throw new InvalidDataException("PartnerConfig SHAREGROOP_WIDGET_URL is needed");
         }

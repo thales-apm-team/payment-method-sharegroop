@@ -37,6 +37,7 @@ public class MockUtils {
         Map<String, String> partnerConfigurationMap = new HashMap<>();
 
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_URL, "https://api.sandbox.sharegroop.com");
+        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.SHAREGROOP_WIDGET_URL, "https://widget.sandbox.sharegroop.com/widget.js");
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
 

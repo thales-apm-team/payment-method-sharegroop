@@ -27,6 +27,7 @@ public class Constants {
     public static class PartnerConfigurationKeys {
 
         public static final String SHAREGROOP_URL = "SHAREGROOP_URL";
+        public static final String SHAREGROOP_WIDGET_URL = "SHAREGROOP_WIDGET_URL";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private PartnerConfigurationKeys() {

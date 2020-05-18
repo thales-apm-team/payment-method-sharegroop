@@ -34,12 +34,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import static com.payline.payment.sharegroop.utils.Constants.PartnerConfigurationKeys.SHAREGROOP_WIDGET_URL;
+
 
 public class PaymentServiceImpl implements PaymentService {
     private static final String DATA = "data";
 
-
-    private static final String SHAREGROOP_URL = "https://widget.sandbox.sharegroop.com/widget.js";
     private static final String DIV_ID = "sharegroopPaymentForm";
     private static final String CALLBACK_NAME = "paylineProcessPaymentCallback";
     private static final String CONTEXT_DATA_STEP = "STEP";
@@ -103,6 +103,7 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             // get the step
             String step = paymentRequest.getRequestContext().getRequestData().get(CONTEXT_DATA_STEP);
+            LOGGER.info("Step: {}", step);
             if (step == null || step.equals("")) {
                 // first step, we've got to return the "captain init" js
                 return step1(paymentRequest);
@@ -162,10 +163,18 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private PaymentResponse step1(PaymentRequest paymentRequest) {
+        LOGGER.info("Processing step 1");
+
 
         // create init form to return
+        String url = paymentRequest.getPartnerConfiguration().getProperty(SHAREGROOP_WIDGET_URL);
+        if (url == null || url.length() == 0){
+            LOGGER.error("PartnerConfig SHAREGROOP_WIDGET_URL is needed");
+            throw new InvalidDataException("PartnerConfig SHAREGROOP_WIDGET_URL is needed");
+        }
+
         String script = getScript(paymentRequest);
-        PaymentFormConfigurationResponse configurationResponse = createForm(script, paymentRequest.getLocale());
+        PaymentFormConfigurationResponse configurationResponse = createForm(url, script, paymentRequest.getLocale());
 
         // add step information
         Map<String, String> requestContextMap = new HashMap<>();
@@ -185,8 +194,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private PaymentResponse step2(PaymentRequest request) {
+        LOGGER.info("Processing step 2");
+
         // extract js response data
         String jsonPaymentData = request.getPaymentFormContext().getPaymentFormParameter().get(DATA);
+        LOGGER.info("Payment data: {}", jsonPaymentData);
+
         if (jsonPaymentData == null || jsonPaymentData.length() == 0) {
             String errorMessage = "An unknown error occurred during captain initialisation";
             return PaymentResponseFailure.PaymentResponseFailureBuilder
@@ -206,7 +219,7 @@ public class PaymentServiceImpl implements PaymentService {
         // check the response and the status response
         if (!response.getSuccess()) {
             // return a failure
-            LOGGER.error(response.getErrors().get(0));
+            LOGGER.info("Sharegroop response is not succes: {}",response.getErrors().get(0));
             return PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()
                     .withPartnerTransactionId(partnerTransactionId)
@@ -241,12 +254,12 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
     }
 
-    private PaymentFormConfigurationResponse createForm(String script, Locale locale) {
+    private PaymentFormConfigurationResponse createForm(String url,String script, Locale locale) {
         try {
             // script to import
             PartnerWidgetScriptImport scriptImport = PartnerWidgetScriptImport.WidgetPartnerScriptImportBuilder
                     .aWidgetPartnerScriptImport()
-                    .withUrl(new URL(SHAREGROOP_URL))
+                    .withUrl(new URL(url))
                     .withCache(true)
                     .withAsync(true)
                     .build();

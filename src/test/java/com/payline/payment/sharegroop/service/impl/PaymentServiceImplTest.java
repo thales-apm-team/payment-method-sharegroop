@@ -9,6 +9,7 @@ import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFormUpdated;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseOnHold;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseSpecific;
 import com.payline.pmapi.service.PaymentService;
@@ -83,7 +84,7 @@ class PaymentServiceImplTest {
 
 
         PaymentResponse response = service.paymentRequest(request);
-        Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
+        Assertions.assertEquals(PaymentResponseOnHold.class, response.getClass());
     }
 
 

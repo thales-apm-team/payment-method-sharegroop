@@ -90,7 +90,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return
      * @throws SignatureException
      */
-    public static String hashMac(String text, String secretKey) t {
+    public static String hashMac(String text, String secretKey) {
         try {
             Key sk = new SecretKeySpec(secretKey.getBytes(), HASH_ALGORITHM);
             Mac mac = Mac.getInstance(sk.getAlgorithm());

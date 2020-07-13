@@ -10,6 +10,7 @@ import com.payline.payment.sharegroop.utils.PluginUtils;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.payment.sharegroop.utils.i18n.I18nService;
 import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.common.OnHoldCause;
 import com.payline.pmapi.bean.payment.Order;
 import com.payline.pmapi.bean.payment.RequestContext;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
@@ -17,11 +18,8 @@ import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.Email;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFormUpdated;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseOnHold;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
-import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormDisplayFieldText;
-import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
-import com.payline.pmapi.bean.paymentform.bean.form.AbstractPaymentForm;
-import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
 import com.payline.pmapi.bean.paymentform.bean.form.PartnerWidgetForm;
 import com.payline.pmapi.bean.paymentform.bean.form.partnerwidget.*;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
@@ -246,11 +244,12 @@ public class PaymentServiceImpl implements PaymentService {
                 .withEmail(email)
                 .build();
 
-        return PaymentResponseSuccess.PaymentResponseSuccessBuilder
-                .aPaymentResponseSuccess()
+        return PaymentResponseOnHold.PaymentResponseOnHoldBuilder.
+                aPaymentResponseOnHold()
                 .withPartnerTransactionId(partnerTransactionId)
                 .withStatusCode(status)
-                .withTransactionDetails(buyerId)
+                .withBuyerPaymentId(buyerId)
+                .withOnHoldCause(OnHoldCause.SCORING_ASYNC)
                 .build();
     }
 

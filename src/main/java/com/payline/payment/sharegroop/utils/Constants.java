@@ -38,4 +38,15 @@ public class Constants {
     private Constants() {
     }
 
+    /**
+     * Keys for the entries in SharegroopEvent map.
+     */
+    public static class SharegroopEventKeys {
+        public static final String COMPLETED = "order.completed";
+        /* Static utility class : no need to instantiate it (Sonar bug fix) */
+        private SharegroopEventKeys() {
+        }
+    }
+
+
 }

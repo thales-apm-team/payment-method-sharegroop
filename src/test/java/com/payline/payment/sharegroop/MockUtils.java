@@ -20,6 +20,12 @@ public class MockUtils {
     private static final String TRANSACTIONID = "123456789012345678901";
     private static final String PARTNER_TRANSACTIONID = "098765432109876543210";
 
+    public static String getWebhookSecretKey() {
+        return WEBHOOK_SECRET_KEY;
+    }
+
+    private static final String WEBHOOK_SECRET_KEY = "whsk_f19f3281-eb6f-4d5f-a378-8df1d32f6b91";
+
     /**
      * Generate a valid {@link Environment}.
      */
@@ -73,6 +79,7 @@ public class MockUtils {
                 "\t\"firstName\": \"John\",\n" +
                 "\t\"lastName\": \"Carter\",\n" +
                 "\t\"trackId\": \"MY-INTERN-ID\",\n" +
+                "\t\"notifyUrl\": \"https://my.domain/my-endpoint\",\n" +
                 "\t\"items\": [\n" +
                 "        {\n" +
                 "          \"trackId\": \"MY-ITEM-ID\",\n" +

@@ -1,6 +1,5 @@
 package com.payline.payment.sharegroop.bean.payment;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Item {

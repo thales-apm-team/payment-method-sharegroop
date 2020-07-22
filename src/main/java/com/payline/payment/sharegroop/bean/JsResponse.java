@@ -1,7 +1,6 @@
 package com.payline.payment.sharegroop.bean;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class JsResponse {
     private String order;

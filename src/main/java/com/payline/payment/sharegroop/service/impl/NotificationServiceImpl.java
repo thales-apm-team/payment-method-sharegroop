@@ -45,22 +45,24 @@ public class NotificationServiceImpl implements NotificationService {
         String content = PluginUtils.inputStreamToString(request.getContent());
         SharegroopNotificationResponse sharegroopNotificationResponse = SharegroopNotificationResponse.fromJson(content);
 
-        PaymentResponse paymentResponse = null;
-
-        // Check notification's signature
-        if (verifySignature(WEBHOOK_SECRET_KEY, content, signature.replace("v1=", ""))) {
-            // Check if it is a COMPLETED event
-            if (Constants.SharegroopEventKeys.COMPLETED.equals(sharegroopNotificationResponse.getEvent())) {
-                paymentResponse = PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
-                        .withStatusCode(Integer.toString(HTTP_OK))
-                        .withTransactionDetails(new EmptyTransactionDetails())
-                        .withPartnerTransactionId(sharegroopNotificationResponse.getId())
-                        .withMessage(new Message(Message.MessageType.SUCCESS, sharegroopNotificationResponse.getEvent()))
-                        .build();
-                notificationResponse = buildResponse(paymentResponse, sharegroopNotificationResponse.getId());
+        if(content != null && sharegroopNotificationResponse != null) {
+            // Check notification's signature
+            if (verifySignature(WEBHOOK_SECRET_KEY, content, signature.replace("v1=", ""))) {
+                // Check if it is a COMPLETED event
+                if (Constants.SharegroopEventKeys.COMPLETED.equals(sharegroopNotificationResponse.getEvent())) {
+                    PaymentResponse paymentResponse = PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
+                            .withStatusCode(Integer.toString(HTTP_OK))
+                            .withTransactionDetails(new EmptyTransactionDetails())
+                            .withPartnerTransactionId(sharegroopNotificationResponse.getId())
+                            .withMessage(new Message(Message.MessageType.SUCCESS, sharegroopNotificationResponse.getEvent()))
+                            .build();
+                    notificationResponse = buildResponse(paymentResponse, sharegroopNotificationResponse.getId());
+                }
+            } else {
+                LOGGER.error("Notification signature is not verified");
             }
-        }else {
-            LOGGER.error("Notification signature is not verified");
+        }else{
+            LOGGER.error("Notification content incorrect -  content : {} - sharegroopNotificationResponse : {}", content, sharegroopNotificationResponse);
         }
 
         return notificationResponse;
@@ -76,10 +78,16 @@ public class NotificationServiceImpl implements NotificationService {
      */
     public boolean verifySignature(String webhookSecretKey, String content, String signature) {
         Boolean status = false;
-        String hash = hashMac(content, webhookSecretKey);
-        if (signature.equals(hash)) {
-            status = true;
+
+        if (webhookSecretKey != null && content != null && signature != null) {
+            String hash = hashMac(content, webhookSecretKey);
+            if (signature.equals(hash)) {
+                status = true;
+            }
+        }else{
+            LOGGER.error("Incorrect data - webhookSecretKey : {} - content : {} - signature : {}", webhookSecretKey,content,signature);
         }
+
         return status;
     }
 
@@ -92,6 +100,10 @@ public class NotificationServiceImpl implements NotificationService {
      * @throws SignatureException
      */
     public static String hashMac(String text, String secretKey) {
+        if(secretKey == null||secretKey.isEmpty()||text == null){
+            return "";
+        }
+
         try {
             Key sk = new SecretKeySpec(secretKey.getBytes(), HASH_ALGORITHM);
             Mac mac = Mac.getInstance(sk.getAlgorithm());

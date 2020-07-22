@@ -21,7 +21,7 @@ class NotificationServiceImplTest {
     NotificationServiceImpl service = new NotificationServiceImpl();
 
     @Test
-    void paymentRequestStep1() {
+    void verifySignature() {
 
         Boolean flag = false;
         String content = "{\"event\":\"order.refunded\",\"id\":\"ord_326cdac6-05d9-4dc1-bd35-7ea70d997721\",\"date\":1595321904259}";
@@ -29,6 +29,38 @@ class NotificationServiceImplTest {
         flag = service.verifySignature(MockUtils.getWebhookSecretKey(), content, signature);
 
         Assertions.assertEquals(true, flag);
+    }
+    @Test
+    void verifySignatureContentNull() {
+
+        Boolean flag = false;
+        String content = null;
+        String signature = "a3f2897e6341f4ba9b722682c4eb3e684bef86107ffd0940d15d15eb59dcbec4";
+        flag = service.verifySignature(MockUtils.getWebhookSecretKey(), content, signature);
+
+        Assertions.assertEquals(false, flag);
+    }
+    @Test
+    void verifyHashMacKeyNull() {
+        String content = "{\"event\":\"order.refunded\",\"id\":\"ord_326cdac6-05d9-4dc1-bd35-7ea70d997721\",\"date\":1595321904259}";
+        String result = NotificationServiceImpl.hashMac(content,null);
+
+        Assertions.assertEquals("", result);
+    }
+    @Test
+    void verifyHashMacKeyEmpty() {
+        String content = "{\"event\":\"order.refunded\",\"id\":\"ord_326cdac6-05d9-4dc1-bd35-7ea70d997721\",\"date\":1595321904259}";
+        String result = NotificationServiceImpl.hashMac(content,"");
+
+        Assertions.assertEquals("", result);
+    }
+
+    @Test
+    void verifyHashMacContentNull() {
+
+        String result = NotificationServiceImpl.hashMac(null,MockUtils.getWebhookSecretKey());
+
+        Assertions.assertEquals("", result);
     }
 
     @Test

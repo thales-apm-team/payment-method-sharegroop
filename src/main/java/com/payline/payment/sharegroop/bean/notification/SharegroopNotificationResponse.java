@@ -2,8 +2,6 @@ package com.payline.payment.sharegroop.bean.notification;
 
 import com.google.gson.Gson;
 
-import java.util.Date;
-
 public class SharegroopNotificationResponse {
 
     private String event;

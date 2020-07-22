@@ -75,11 +75,12 @@ public class NotificationServiceImpl implements NotificationService {
      * @return
      */
     public boolean verifySignature(String webhookSecretKey, String content, String signature) {
+        Boolean status = false;
         String hash = hashMac(content, webhookSecretKey);
         if (signature.equals(hash)) {
-            return true;
+            status = true;
         }
-        return false;
+        return status;
     }
 
     /**
@@ -108,10 +109,11 @@ public class NotificationServiceImpl implements NotificationService {
     public static String toHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
 
-        Formatter formatter = new Formatter(sb);
-        for (byte b : bytes) {
-            formatter.format("%02x", b);
-        }
+       try(Formatter formatter = new Formatter(sb)) {
+           for (byte b : bytes) {
+               formatter.format("%02x", b);
+           }
+       }
 
         return sb.toString();
     }

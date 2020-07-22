@@ -1,7 +1,6 @@
 package com.payline.payment.sharegroop.service.impl;
 
 import com.payline.payment.sharegroop.service.LogoPaymentFormConfigurationService;
-import com.payline.payment.sharegroop.utils.i18n.I18nService;
 import com.payline.pmapi.bean.paymentform.bean.form.NoFieldForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;

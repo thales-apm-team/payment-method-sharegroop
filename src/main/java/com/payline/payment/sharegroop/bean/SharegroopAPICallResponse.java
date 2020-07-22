@@ -1,7 +1,6 @@
 package com.payline.payment.sharegroop.bean;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.payline.payment.sharegroop.bean.payment.Data;
 
 import java.util.List;

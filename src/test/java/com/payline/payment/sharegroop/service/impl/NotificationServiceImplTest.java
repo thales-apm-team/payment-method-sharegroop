@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
-public class NotificationServiceImplTest {
+class NotificationServiceImplTest {
 
     @InjectMocks
     NotificationServiceImpl service = new NotificationServiceImpl();
@@ -85,4 +85,5 @@ public class NotificationServiceImplTest {
         Assertions.assertNotNull(notificationResponse);
         Assertions.assertEquals(IgnoreNotificationResponse.class, notificationResponse.getClass());
     }
+
 }

@@ -19,7 +19,6 @@ import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.Email
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFormUpdated;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseOnHold;
-import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
 import com.payline.pmapi.bean.paymentform.bean.form.PartnerWidgetForm;
 import com.payline.pmapi.bean.paymentform.bean.form.partnerwidget.*;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
@@ -214,8 +213,10 @@ public class PaymentServiceImpl implements PaymentService {
         RequestConfiguration requestConfiguration = new RequestConfiguration(request.getContractConfiguration(), request.getEnvironment(), request.getPartnerConfiguration());
         SharegroopAPICallResponse response = sharegroopHttpClient.verifyOrder(requestConfiguration, partnerTransactionId);
 
+        Boolean responseStatus = response.getSuccess();
+
         // check the response and the status response
-        if (!response.getSuccess()) {
+        if (Boolean.FALSE.equals(responseStatus)) {
             // return a failure
             LOGGER.info("Sharegroop response is not succes: {}",response.getErrors().get(0));
             return PaymentResponseFailure.PaymentResponseFailureBuilder

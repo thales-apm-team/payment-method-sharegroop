@@ -131,7 +131,7 @@ public class SharegroopHttpClient {
 
         while (strResponse == null && attempts <= this.retries) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Start call to partner API (attempt {}) :" + System.lineSeparator() + PluginUtils.requestToString(httpRequest), attempts);
+                LOGGER.debug("Start call to partner API (request : {}) (attempt : {}) ", PluginUtils.requestToString(httpRequest), attempts);
             } else {
                 LOGGER.info("Start call to partner API [{} {}] (attempt {})", httpRequest.getMethod(), httpRequest.getURI(), attempts);
             }

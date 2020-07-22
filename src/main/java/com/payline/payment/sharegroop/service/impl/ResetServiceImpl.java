@@ -25,10 +25,12 @@ public class ResetServiceImpl implements ResetService {
             RequestConfiguration requestConfiguration = new RequestConfiguration(resetRequest.getContractConfiguration(), resetRequest.getEnvironment(), resetRequest.getPartnerConfiguration());
             SharegroopAPICallResponse sharegroopAPICallResponse = httpClient.cancelOrder(requestConfiguration, resetRequest.getTransactionId());
 
-            if (sharegroopAPICallResponse.getSuccess()) {
+            Boolean cancelResponseStatus = sharegroopAPICallResponse.getSuccess();
+            if (Boolean.TRUE.equals(cancelResponseStatus)) {
                 // verify the final status of the transaction
                 sharegroopAPICallResponse = httpClient.verifyOrder(requestConfiguration, resetRequest.getTransactionId());
-                if (sharegroopAPICallResponse.getSuccess() && "refunded".equalsIgnoreCase(sharegroopAPICallResponse.getData().getStatus())) {
+                Boolean verifyResponseStatus = sharegroopAPICallResponse.getSuccess();
+                if (Boolean.TRUE.equals(verifyResponseStatus) && "refunded".equalsIgnoreCase(sharegroopAPICallResponse.getData().getStatus())) {
                     return ResetResponseSuccess.ResetResponseSuccessBuilder
                             .aResetResponseSuccess()
                             .withPartnerTransactionId(sharegroopAPICallResponse.getData().getId())

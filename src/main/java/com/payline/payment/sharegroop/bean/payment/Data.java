@@ -1,6 +1,5 @@
 package com.payline.payment.sharegroop.bean.payment;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Data extends Order{
@@ -16,6 +15,7 @@ public class Data extends Order{
     private String integration;
     private String ecard;
     private String dueDate;
+    private String notifyUrl;
 
     public String getTenantPlatform() {
         return tenantPlatform;
@@ -26,6 +26,7 @@ public class Data extends Order{
     public String getTenantId() {
         return tenantId;
     }
+    public String getNotifyUrl() {return notifyUrl;}
     public String getIntegration() {
         return integration;
     }

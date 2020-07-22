@@ -28,7 +28,7 @@ configurations {
 }
 
 ext {
-    paymentMethodApiVersion = '1.7'
+    paymentMethodApiVersion = '1.9'
     powerMockVersion = '1.7.0'
     //paymentMethodIntegrationVersion = '1.4'
 }
@@ -104,4 +104,9 @@ processResources {
 test {
     useJUnitPlatform()
     exclude('**/*IT.class')
+}
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
 }

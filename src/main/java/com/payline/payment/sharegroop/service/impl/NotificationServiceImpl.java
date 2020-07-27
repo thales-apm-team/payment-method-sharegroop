@@ -39,30 +39,35 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationResponse parse(NotificationRequest request) {
         NotificationResponse notificationResponse = new IgnoreNotificationResponse();
 
-        String signature = request.getHeaderInfos().get(SG_SIGNATURE);
+        try {
 
-        // init data
-        String content = PluginUtils.inputStreamToString(request.getContent());
-        SharegroopNotificationResponse sharegroopNotificationResponse = SharegroopNotificationResponse.fromJson(content);
+            String signature = request.getHeaderInfos().get(SG_SIGNATURE);
 
-        if(content != null && sharegroopNotificationResponse != null) {
-            // Check notification's signature
-            if (verifySignature(WEBHOOK_SECRET_KEY, content, signature.replace("v1=", ""))) {
-                // Check if it is a COMPLETED event
-                if (Constants.SharegroopEventKeys.COMPLETED.equals(sharegroopNotificationResponse.getEvent())) {
-                    PaymentResponse paymentResponse = PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
-                            .withStatusCode(Integer.toString(HTTP_OK))
-                            .withTransactionDetails(new EmptyTransactionDetails())
-                            .withPartnerTransactionId(sharegroopNotificationResponse.getId())
-                            .withMessage(new Message(Message.MessageType.SUCCESS, sharegroopNotificationResponse.getEvent()))
-                            .build();
-                    notificationResponse = buildResponse(paymentResponse, sharegroopNotificationResponse.getId());
+            // init data
+            String content = PluginUtils.inputStreamToString(request.getContent());
+            SharegroopNotificationResponse sharegroopNotificationResponse = SharegroopNotificationResponse.fromJson(content);
+
+            if (content != null && sharegroopNotificationResponse != null) {
+                // Check notification's signature
+                if (verifySignature(WEBHOOK_SECRET_KEY, content, signature.replace("v1=", ""))) {
+                    // Check if it is a COMPLETED event
+                    if (Constants.SharegroopEventKeys.COMPLETED.equals(sharegroopNotificationResponse.getEvent())) {
+                        PaymentResponse paymentResponse = PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
+                                .withStatusCode(Integer.toString(HTTP_OK))
+                                .withTransactionDetails(new EmptyTransactionDetails())
+                                .withPartnerTransactionId(sharegroopNotificationResponse.getId())
+                                .withMessage(new Message(Message.MessageType.SUCCESS, sharegroopNotificationResponse.getEvent()))
+                                .build();
+                        notificationResponse = buildResponse(paymentResponse, sharegroopNotificationResponse.getId());
+                    }
+                } else {
+                    LOGGER.error("Notification signature is not verified");
                 }
             } else {
-                LOGGER.error("Notification signature is not verified");
+                LOGGER.error("Notification content incorrect -  content : {} - sharegroopNotificationResponse : {}", content, sharegroopNotificationResponse);
             }
-        }else{
-            LOGGER.error("Notification content incorrect -  content : {} - sharegroopNotificationResponse : {}", content, sharegroopNotificationResponse);
+        }catch (RuntimeException e){
+            LOGGER.error("Error while processing notification", e);
         }
 
         return notificationResponse;

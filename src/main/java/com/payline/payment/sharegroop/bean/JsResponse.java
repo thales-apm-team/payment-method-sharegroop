@@ -1,8 +1,5 @@
 package com.payline.payment.sharegroop.bean;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 public class JsResponse {
     private String order;
     private String auth;
@@ -30,7 +27,4 @@ public class JsResponse {
         return amount;
     }
 
-    public static JsResponse fromJson(String json ){
-        return new Gson().fromJson( json, JsResponse.class );
-    }
 }

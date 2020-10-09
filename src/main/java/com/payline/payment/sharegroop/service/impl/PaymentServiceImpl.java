@@ -5,11 +5,13 @@ import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
 import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
+import com.payline.payment.sharegroop.service.JsonService;
 import com.payline.payment.sharegroop.utils.Constants;
 import com.payline.payment.sharegroop.utils.PluginUtils;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.payment.sharegroop.utils.i18n.I18nService;
 import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.common.OnHoldCause;
 import com.payline.pmapi.bean.payment.Order;
 import com.payline.pmapi.bean.payment.RequestContext;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
@@ -17,11 +19,7 @@ import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.Email;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFormUpdated;
-import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
-import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormDisplayFieldText;
-import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
-import com.payline.pmapi.bean.paymentform.bean.form.AbstractPaymentForm;
-import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseOnHold;
 import com.payline.pmapi.bean.paymentform.bean.form.PartnerWidgetForm;
 import com.payline.pmapi.bean.paymentform.bean.form.partnerwidget.*;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
@@ -66,36 +64,38 @@ public class PaymentServiceImpl implements PaymentService {
 
     private static final String CALLBACK = "[CALLBACK]";
 
-    private static final String TEMPLATE_SCRIPT = "ShareGroop.initCaptain({\n" +
-            "        \"selector\": \"#" + SELECTOR + "\",\n" +
-            "        \"publicKey\": \"" + PUBLIC_KEY + "\",\n" +
-            "        \"locale\": \"" + LOCALE + "\",\n" +
-            "        \"currency\": \"" + CURRENCY + "\",\n" +
-            "        \"order\": {\n" +
-            "           \"email\": \"" + EMAIL + "\",\n" +
+
+    private static final String TEMPLATE_SCRIPT = "ShareGroop.initCaptain({" +
+            "        \"selector\": \"#" + SELECTOR + "\"," +
+            "        \"publicKey\": \"" + PUBLIC_KEY + "\"," +
+            "        \"locale\": \"" + LOCALE + "\"," +
+            "        \"currency\": \"" + CURRENCY + "\"," +
+            "        \"order\": {" +
+            "           \"email\": \"" + EMAIL + "\"," +
             "           \"ux\": \"" + UX + "\"," +
-            "           \"firstName\": \"" + FIRSTNAME + "\",\n" +
-            "           \"lastName\": \"" + LASTNAME + "\",\n" +
-            "           \"trackId\": \"" + TRACK_ID + "\",\n" +
-            "           \"amount\": " + AMOUNT + ",\n" +
-            "           \"items\": [ " + ITEMS + " ]\n" +
-            "        },\n" +
-            "        \"events\": {\n" +
-            "          \"onValidated\": function(data) { " + CALLBACK + "(data); },\n" +
-            "          \"onInvalid\": function () {     " + CALLBACK + "(); },\n" +
-            "          \"onError\": function () {     " + CALLBACK + "(); }\n" +
-            "        }\n" +
+            "           \"firstName\": \"" + FIRSTNAME + "\"," +
+            "           \"lastName\": \"" + LASTNAME + "\"," +
+            "           \"trackId\": \"" + TRACK_ID + "\"," +
+            "           \"amount\": " + AMOUNT + "," +
+            "           \"items\": [ " + ITEMS + " ]" +
+            "        }," +
+            "        \"events\": {" +
+            "          \"onValidated\": function(data) { " + CALLBACK + "(data); }," +
+            "          \"onInvalid\": function () {     " + CALLBACK + "(); }," +
+            "          \"onError\": function () {     " + CALLBACK + "(); }" +
+            "        }" +
             "    }).mount();";
 
-    private static final String TEMPLATE_ITEM = "{\n" +
-            "               \"trackId\": \"" + ITEM_TRACK_ID + "\",\n" +
-            "               \"amount\": " + ITEM_AMOUNT + ",\n" +
-            "               \"quantity\": " + ITEM_QUANTITY + "\n" +
-            "             }\n";
+    private static final String TEMPLATE_ITEM = "{" +
+            "               \"trackId\": \"" + ITEM_TRACK_ID + "\"," +
+            "               \"amount\": " + ITEM_AMOUNT + "," +
+            "               \"quantity\": " + ITEM_QUANTITY + "" +
+            "             }";
 
     private static final Logger LOGGER = LogManager.getLogger(PaymentServiceImpl.class);
     private SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
     private I18nService i18n = I18nService.getInstance();
+    private final JsonService jsonService = JsonService.getInstance();
 
     @Override
     public PaymentResponse paymentRequest(PaymentRequest paymentRequest) {
@@ -168,7 +168,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // create init form to return
         String url = paymentRequest.getPartnerConfiguration().getProperty(SHAREGROOP_WIDGET_URL);
-        if (url == null || url.length() == 0){
+        if (url == null || url.length() == 0) {
             LOGGER.error("PartnerConfig SHAREGROOP_WIDGET_URL is needed");
             throw new InvalidDataException("PartnerConfig SHAREGROOP_WIDGET_URL is needed");
         }
@@ -208,7 +208,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .withFailureCause(FailureCause.PARTNER_UNKNOWN_ERROR)
                     .build();
         }
-        JsResponse jsResponse = JsResponse.fromJson(jsonPaymentData);
+        JsResponse jsResponse = jsonService.fromJson(jsonPaymentData, JsResponse.class);
         String partnerTransactionId = jsResponse.getOrder();
         String email = jsResponse.getEmail();
 
@@ -216,10 +216,12 @@ public class PaymentServiceImpl implements PaymentService {
         RequestConfiguration requestConfiguration = new RequestConfiguration(request.getContractConfiguration(), request.getEnvironment(), request.getPartnerConfiguration());
         SharegroopAPICallResponse response = sharegroopHttpClient.verifyOrder(requestConfiguration, partnerTransactionId);
 
+        Boolean responseStatus = response.getSuccess();
+
         // check the response and the status response
-        if (!response.getSuccess()) {
+        if (Boolean.FALSE.equals(responseStatus)) {
             // return a failure
-            LOGGER.info("Sharegroop response is not succes: {}",response.getErrors().get(0));
+            LOGGER.info("Sharegroop response is not succes: {}", response.getErrors().get(0));
             return PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()
                     .withPartnerTransactionId(partnerTransactionId)
@@ -246,15 +248,16 @@ public class PaymentServiceImpl implements PaymentService {
                 .withEmail(email)
                 .build();
 
-        return PaymentResponseSuccess.PaymentResponseSuccessBuilder
-                .aPaymentResponseSuccess()
+        return PaymentResponseOnHold.PaymentResponseOnHoldBuilder.
+                aPaymentResponseOnHold()
                 .withPartnerTransactionId(partnerTransactionId)
                 .withStatusCode(status)
-                .withTransactionDetails(buyerId)
+                .withBuyerPaymentId(buyerId)
+                .withOnHoldCause(OnHoldCause.SCORING_ASYNC)
                 .build();
     }
 
-    private PaymentFormConfigurationResponse createForm(String url,String script, Locale locale) {
+    private PaymentFormConfigurationResponse createForm(String url, String script, Locale locale) {
         try {
             // script to import
             PartnerWidgetScriptImport scriptImport = PartnerWidgetScriptImport.WidgetPartnerScriptImportBuilder

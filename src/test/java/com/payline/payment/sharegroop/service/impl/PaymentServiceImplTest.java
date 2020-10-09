@@ -2,6 +2,7 @@ package com.payline.payment.sharegroop.service.impl;
 
 import com.payline.payment.sharegroop.MockUtils;
 import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
+import com.payline.payment.sharegroop.service.JsonService;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.pmapi.bean.payment.PaymentFormContext;
 import com.payline.pmapi.bean.payment.RequestContext;
@@ -9,6 +10,7 @@ import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFormUpdated;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseOnHold;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseSpecific;
 import com.payline.pmapi.service.PaymentService;
@@ -31,6 +33,8 @@ class PaymentServiceImplTest {
     @Mock
     SharegroopHttpClient sharegroopHttpClient = SharegroopHttpClient.getInstance();
 
+    private final JsonService jsonService = JsonService.getInstance();
+
 
     @BeforeEach
     void setUp() {
@@ -47,7 +51,7 @@ class PaymentServiceImplTest {
 
     @Test
     void paymentRequestStep2() {
-        SharegroopAPICallResponse apiResponse = SharegroopAPICallResponse.fromJson(MockUtils.aShareGroopResponse("confirmed"));
+        SharegroopAPICallResponse apiResponse = jsonService.fromJson(MockUtils.aShareGroopResponse("confirmed"), SharegroopAPICallResponse.class);
         Mockito.doReturn(apiResponse).when(sharegroopHttpClient).verifyOrder(Mockito.any(), Mockito.any());
 
         // init data
@@ -83,7 +87,7 @@ class PaymentServiceImplTest {
 
 
         PaymentResponse response = service.paymentRequest(request);
-        Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
+        Assertions.assertEquals(PaymentResponseOnHold.class, response.getClass());
     }
 
 
@@ -109,7 +113,7 @@ class PaymentServiceImplTest {
     @Test
     void paymentRequestStep3WithoutData() {
         // create mock
-        SharegroopAPICallResponse apiResponse = SharegroopAPICallResponse.fromJson(MockUtils.aShareGroopResponse("confirmed"));
+        SharegroopAPICallResponse apiResponse = jsonService.fromJson(MockUtils.aShareGroopResponse("confirmed"), SharegroopAPICallResponse.class);
         Mockito.doReturn(apiResponse).when(sharegroopHttpClient).verifyOrder(Mockito.any(), Mockito.any());
 
         Map<String, String> requestContextData = new HashMap<>();

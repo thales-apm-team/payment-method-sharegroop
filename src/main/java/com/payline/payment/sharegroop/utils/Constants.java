@@ -28,6 +28,7 @@ public class Constants {
 
         public static final String SHAREGROOP_URL = "SHAREGROOP_URL";
         public static final String SHAREGROOP_WIDGET_URL = "SHAREGROOP_WIDGET_URL";
+        public static final String SHAREGROOP_WEBHOOK_SECRET_KEY = "SHAREGROOP_WEBHOOK_SECRET_KEY";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private PartnerConfigurationKeys() {
@@ -37,5 +38,16 @@ public class Constants {
     /* Static utility class : no need to instantiate it (Sonar bug fix) */
     private Constants() {
     }
+
+    /**
+     * Keys for the entries in SharegroopEvent map.
+     */
+    public static class SharegroopEventKeys {
+        public static final String COMPLETED = "order.completed";
+        /* Static utility class : no need to instantiate it (Sonar bug fix) */
+        private SharegroopEventKeys() {
+        }
+    }
+
 
 }

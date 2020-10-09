@@ -108,9 +108,10 @@ class LogoPaymentFormConfigurationServiceTest {
         doReturn("does_not_exist.png").when( config ).get("logo.filename");
         doReturn("png").when( config ).get("logo.format");
         doReturn("image/png").when( config ).get("logo.contentType");
+        Locale locale = Locale.getDefault();
 
         // when: calling method getLogo(), then: an exception is thrown
-        assertThrows( PluginException.class, () -> testService.getLogo( "whatever", Locale.getDefault() ) );
+        assertThrows( PluginException.class, () -> testService.getLogo( "whatever", locale ) );
     }
 
 }

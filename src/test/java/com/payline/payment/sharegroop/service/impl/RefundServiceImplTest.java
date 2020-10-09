@@ -3,6 +3,7 @@ package com.payline.payment.sharegroop.service.impl;
 import com.payline.payment.sharegroop.MockUtils;
 import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
 import com.payline.payment.sharegroop.exception.PluginException;
+import com.payline.payment.sharegroop.service.JsonService;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.pmapi.bean.refund.request.RefundRequest;
 import com.payline.pmapi.bean.refund.response.RefundResponse;
@@ -39,6 +40,8 @@ class RefundServiceImplTest {
     @Mock
     private SharegroopHttpClient httpClient;
 
+    private final JsonService jsonService = JsonService.getInstance();
+
     @BeforeEach
     void setup() {
         MockitoAnnotations.initMocks(this);
@@ -47,7 +50,7 @@ class RefundServiceImplTest {
 
     @Test
     void refund_RequestTestOK() {
-        SharegroopAPICallResponse sharegroopResponse = SharegroopAPICallResponse.fromJson(MockUtils.aShareGroopResponse("refunded"));
+        SharegroopAPICallResponse sharegroopResponse = jsonService.fromJson(MockUtils.aShareGroopResponse("refunded"), SharegroopAPICallResponse.class);
         Mockito.doReturn(sharegroopResponse).when(httpClient).refundOrder(any(), anyString());
 
         RefundRequest request = MockUtils.aPaylineRefundRequest();
@@ -58,7 +61,7 @@ class RefundServiceImplTest {
 
     @Test
     void refund_RequestTestKO() {
-        SharegroopAPICallResponse sharegroopResponse = SharegroopAPICallResponse.fromJson(REFUND_RESPONSE_KO);
+        SharegroopAPICallResponse sharegroopResponse = jsonService.fromJson(REFUND_RESPONSE_KO, SharegroopAPICallResponse.class);
         Mockito.doReturn(sharegroopResponse).when(httpClient).refundOrder(any(), anyString());
 
         RefundRequest request = MockUtils.aPaylineRefundRequest();
@@ -72,7 +75,7 @@ class RefundServiceImplTest {
 
     @Test
     void refund_RequestTestKO2() {
-        SharegroopAPICallResponse sharegroopResponse = SharegroopAPICallResponse.fromJson(REFUND_UNAUTHORIZED);
+        SharegroopAPICallResponse sharegroopResponse = jsonService.fromJson(REFUND_UNAUTHORIZED, SharegroopAPICallResponse.class);
         Mockito.doReturn(sharegroopResponse).when(httpClient).refundOrder(any(), anyString());
 
         RefundRequest request = MockUtils.aPaylineRefundRequest();
@@ -87,7 +90,7 @@ class RefundServiceImplTest {
 
     @Test
     void refund_RequestTestKO3() {
-        SharegroopAPICallResponse sharegroopResponse = SharegroopAPICallResponse.fromJson("");
+        SharegroopAPICallResponse sharegroopResponse = jsonService.fromJson("", SharegroopAPICallResponse.class);
         Mockito.doReturn(sharegroopResponse).when(httpClient).refundOrder(any(), anyString());
 
         RefundRequest request = MockUtils.aPaylineRefundRequest();

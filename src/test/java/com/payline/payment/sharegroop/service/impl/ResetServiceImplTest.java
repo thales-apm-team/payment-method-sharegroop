@@ -3,6 +3,7 @@ package com.payline.payment.sharegroop.service.impl;
 import com.payline.payment.sharegroop.MockUtils;
 import com.payline.payment.sharegroop.bean.SharegroopAPICallResponse;
 import com.payline.payment.sharegroop.exception.PluginException;
+import com.payline.payment.sharegroop.service.JsonService;
 import com.payline.payment.sharegroop.utils.http.SharegroopHttpClient;
 import com.payline.pmapi.bean.reset.request.ResetRequest;
 import com.payline.pmapi.bean.reset.response.ResetResponse;
@@ -41,6 +42,8 @@ class ResetServiceImplTest {
     @Mock
     private SharegroopHttpClient httpClient;
 
+    private final JsonService jsonService = JsonService.getInstance();
+
     @BeforeEach
     void setup() {
         MockitoAnnotations.initMocks(this);
@@ -48,7 +51,7 @@ class ResetServiceImplTest {
 
     @Test
     void reset_RequestTestOK() {
-        SharegroopAPICallResponse sharegroopResponse = SharegroopAPICallResponse.fromJson(MockUtils.aShareGroopResponse("refunded"));
+        SharegroopAPICallResponse sharegroopResponse = jsonService.fromJson(MockUtils.aShareGroopResponse("refunded"), SharegroopAPICallResponse.class);
         Mockito.doReturn(sharegroopResponse).when(httpClient).cancelOrder(any(), anyString());
         Mockito.doReturn(sharegroopResponse).when(httpClient).verifyOrder(any(), anyString());
 
@@ -60,7 +63,7 @@ class ResetServiceImplTest {
 
     @Test
     void reset_RequestTestKO() {
-        SharegroopAPICallResponse sharegroopResponse = SharegroopAPICallResponse.fromJson(RESET_RESPONSE_KO);
+        SharegroopAPICallResponse sharegroopResponse = jsonService.fromJson(RESET_RESPONSE_KO, SharegroopAPICallResponse.class);
         Mockito.doReturn(sharegroopResponse).when(httpClient).cancelOrder(any(), anyString());
 
         ResetRequest request = MockUtils.aPaylineResetRequest();
@@ -74,7 +77,7 @@ class ResetServiceImplTest {
 
     @Test
     void reset_RequestTestKO2() {
-        SharegroopAPICallResponse sharegroopResponse = SharegroopAPICallResponse.fromJson(RESET_UNAUTHORIZED);
+        SharegroopAPICallResponse sharegroopResponse = jsonService.fromJson(RESET_UNAUTHORIZED, SharegroopAPICallResponse.class);
         Mockito.doReturn(sharegroopResponse).when(httpClient).cancelOrder(any(), anyString());
 
         ResetRequest request = MockUtils.aPaylineResetRequest();
@@ -89,7 +92,7 @@ class ResetServiceImplTest {
 
     @Test
     void reset_RequestTestKO3() {
-        SharegroopAPICallResponse sharegroopResponse = SharegroopAPICallResponse.fromJson("");
+        SharegroopAPICallResponse sharegroopResponse = jsonService.fromJson("", SharegroopAPICallResponse.class);
         Mockito.doReturn(sharegroopResponse).when(httpClient).cancelOrder(any(), anyString());
 
         ResetRequest request = MockUtils.aPaylineResetRequest();

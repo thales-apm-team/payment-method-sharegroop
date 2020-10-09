@@ -1,5 +1,6 @@
 package com.payline.payment.sharegroop.utils;
 
+import com.payline.payment.sharegroop.exception.PluginException;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpPost;
@@ -7,7 +8,9 @@ import org.apache.http.client.methods.HttpRequestBase;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,4 +71,19 @@ public class PluginUtils {
 
         return str;
     }
+
+    /**
+     * Convert an InputStream into a String
+     *
+     * @param stream the InputStream to convert
+     * @return the converted String encoded in UTF-8
+     */
+    public static String inputStreamToString(InputStream stream) {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            return br.lines().collect(Collectors.joining(System.lineSeparator()));
+        } catch (IOException e) {
+            throw new PluginException("Plugin error: unable to read the inputStream", e);
+        }
+    }
+
 }

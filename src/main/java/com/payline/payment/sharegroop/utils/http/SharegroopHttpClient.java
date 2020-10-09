@@ -5,6 +5,7 @@ import com.payline.payment.sharegroop.bean.configuration.RequestConfiguration;
 import com.payline.payment.sharegroop.bean.payment.Order;
 import com.payline.payment.sharegroop.exception.InvalidDataException;
 import com.payline.payment.sharegroop.exception.PluginException;
+import com.payline.payment.sharegroop.service.JsonService;
 import com.payline.payment.sharegroop.utils.Constants;
 import com.payline.payment.sharegroop.utils.PluginUtils;
 import com.payline.payment.sharegroop.utils.properties.ConfigProperties;
@@ -34,6 +35,7 @@ import java.util.Map;
 public class SharegroopHttpClient {
 
     private static final Logger LOGGER = LogManager.getLogger(SharegroopHttpClient.class);
+    private final JsonService jsonService = JsonService.getInstance();
 
     //Headers
     private static final String CONTENT_TYPE_VALUE = "application/json";
@@ -131,7 +133,7 @@ public class SharegroopHttpClient {
 
         while (strResponse == null && attempts <= this.retries) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Start call to partner API (attempt {}) :" + System.lineSeparator() + PluginUtils.requestToString(httpRequest), attempts);
+                LOGGER.debug("Start call to partner API (request : {}) (attempt : {}) ", PluginUtils.requestToString(httpRequest), attempts);
             } else {
                 LOGGER.info("Start call to partner API [{} {}] (attempt {})", httpRequest.getMethod(), httpRequest.getURI(), attempts);
             }
@@ -210,7 +212,7 @@ public class SharegroopHttpClient {
         // Execute request
         StringResponse response = this.execute(httpGet);
 
-        return SharegroopAPICallResponse.fromJson(response.getContent());
+        return jsonService.fromJson(response.getContent(), SharegroopAPICallResponse.class);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -238,7 +240,7 @@ public class SharegroopHttpClient {
     public SharegroopAPICallResponse createOrder(RequestConfiguration requestConfiguration, Order order) {
         StringResponse response = post(requestConfiguration,"","",order.toString());
 
-        return SharegroopAPICallResponse.fromJson(response.getContent());
+        return jsonService.fromJson(response.getContent(), SharegroopAPICallResponse.class);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -248,7 +250,7 @@ public class SharegroopHttpClient {
      */
     public SharegroopAPICallResponse refundOrder(RequestConfiguration requestConfiguration, String createdOrderId){
         StringResponse response = post(requestConfiguration,createdOrderId,REFUND,null);
-        return SharegroopAPICallResponse.fromJson(response.getContent());
+        return jsonService.fromJson(response.getContent(), SharegroopAPICallResponse.class);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**
@@ -259,7 +261,7 @@ public class SharegroopHttpClient {
      */
     public SharegroopAPICallResponse cancelOrder(RequestConfiguration requestConfiguration, String createdOrderId){
         StringResponse response = post(requestConfiguration,createdOrderId,CANCEL,null);
-        return SharegroopAPICallResponse.fromJson(response.getContent());
+        return jsonService.fromJson(response.getContent(), SharegroopAPICallResponse.class);
     }
     /**------------------------------------------------------------------------------------------------------------------*/
     /**

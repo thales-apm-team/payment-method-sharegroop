@@ -47,6 +47,11 @@ class PaymentServiceImplTest {
         PaymentResponse response = service.paymentRequest(request);
 
         Assertions.assertEquals(PaymentResponseFormUpdated.class, response.getClass());
+        PaymentResponseFormUpdated responseFormUpdated = (PaymentResponseFormUpdated) response;
+        Assertions.assertEquals(PaymentFormConfigurationResponseSpecific.class, responseFormUpdated.getPaymentFormConfigurationResponse().getClass());
+        PaymentFormConfigurationResponseSpecific responseSpecific = (PaymentFormConfigurationResponseSpecific) responseFormUpdated.getPaymentFormConfigurationResponse();
+        Assertions.assertEquals("Après avoir payé votre part, vous recevrez par e-mail le lien à envoyer à vos co-payeurs", responseSpecific.getPaymentForm().getDescription());
+        Assertions.assertEquals(null, responseSpecific.getPaymentForm().getButtonText());
     }
 
     @Test

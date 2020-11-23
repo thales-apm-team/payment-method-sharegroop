@@ -227,7 +227,7 @@ public class MockUtils {
                 .withCaptureNow(true)
                 .withContractConfiguration(aContractConfiguration())
                 .withEnvironment(anEnvironment())
-                .withLocale(Locale.getDefault())
+                .withLocale(Locale.FRANCE)
                 .withOrder(aPaylineOrder())
                 .withPartnerConfiguration(aPartnerConfiguration())
                 .withPaymentFormContext(aPaymentFormContext())
